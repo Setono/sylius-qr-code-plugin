@@ -1,4 +1,4 @@
-# Setono Sylius Plugin Skeleton
+# Setono SyliusQRCodePlugin
 
 [![Latest Version][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE)
@@ -16,7 +16,7 @@ Enjoy!
 
 1. Run
     ```shell
-    composer create-project --prefer-source --no-install --remove-vcs setono/sylius-plugin-skeleton:1.14.x-dev ProjectName
+    composer create-project --prefer-source --no-install --remove-vcs setono/sylius-qr-code-plugin:1.14.x-dev ProjectName
     ``` 
     or just click the `Use this template` button at the right corner of this repository.
 2. Run
@@ -41,13 +41,13 @@ Enjoy!
 
 To be able to set up a plugin's database, remember to configure you database credentials in `tests/Application/.env` and `tests/Application/.env.test`.
 
-[ico-version]: https://poser.pugx.org/setono/sylius-plugin-skeleton/v/stable
-[ico-license]: https://poser.pugx.org/setono/sylius-plugin-skeleton/license
-[ico-github-actions]: https://github.com/Setono/SyliusPluginSkeleton/workflows/build/badge.svg
-[ico-code-coverage]: https://codecov.io/gh/Setono/SyliusPluginSkeleton/branch/1.12.x/graph/badge.svg
+[ico-version]: https://poser.pugx.org/setono/sylius-qr-code-plugin/v/stable
+[ico-license]: https://poser.pugx.org/setono/sylius-qr-code-plugin/license
+[ico-github-actions]: https://github.com/Setono/SyliusQRCodePlugin/workflows/build/badge.svg
+[ico-code-coverage]: https://codecov.io/gh/Setono/SyliusQRCodePlugin/branch/1.12.x/graph/badge.svg
 [ico-infection]: https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FSetono%2FSyliusPluginSkeleton%2F1.12.x
 
-[link-packagist]: https://packagist.org/packages/setono/sylius-plugin-skeleton
-[link-github-actions]: https://github.com/Setono/SyliusPluginSkeleton/actions
-[link-code-coverage]: https://codecov.io/gh/Setono/SyliusPluginSkeleton
-[link-infection]: https://dashboard.stryker-mutator.io/reports/github.com/Setono/SyliusPluginSkeleton/1.12.x
+[link-packagist]: https://packagist.org/packages/setono/sylius-qr-code-plugin
+[link-github-actions]: https://github.com/Setono/SyliusQRCodePlugin/actions
+[link-code-coverage]: https://codecov.io/gh/Setono/SyliusQRCodePlugin
+[link-infection]: https://dashboard.stryker-mutator.io/reports/github.com/Setono/SyliusQRCodePlugin/1.12.x

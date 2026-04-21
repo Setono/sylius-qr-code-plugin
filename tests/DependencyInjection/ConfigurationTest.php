@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Tests\DependencyInjection;
+namespace Setono\SyliusQRCodePlugin\Tests\DependencyInjection;
 
-use Acme\SyliusExamplePlugin\DependencyInjection\Configuration;
+use Setono\SyliusQRCodePlugin\DependencyInjection\Configuration;
 use Matthias\SymfonyConfigTest\PhpUnit\ConfigurationTestCaseTrait;
 use PHPUnit\Framework\TestCase;
 
@@ -29,7 +29,7 @@ final class ConfigurationTest extends TestCase
             [
                 [], // no values at all
             ],
-            '/The child (config|node) "option" (under|at path) "acme_sylius_example" must be configured/',
+            '/The child (config|node) "option" (under|at path) "setono_sylius_qr_code" must be configured/',
             true,
         );
     }

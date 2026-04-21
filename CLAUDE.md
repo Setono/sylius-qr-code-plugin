@@ -86,6 +86,6 @@ The plugin provides multilingual support through translation files in `src/Resou
   - `flashes.*` - Flash message translations (success/error messages)
 
 Key translation keys:
-- `acme_sylius_example.ui.*` - UI labels
-- `acme_sylius_example.form.*` - Form field labels
-- `acme_sylius_example.single_message` - A flash message
+- `setono_sylius_qr_code.ui.*` - UI labels
+- `setono_sylius_qr_code.form.*` - Form field labels
+- `setono_sylius_qr_code.single_message` - A flash message

@@ -1,6 +1,6 @@
 {
-    "name": "setono/sylius-plugin-skeleton",
-    "description": "Acme example plugin for Sylius.",
+    "name": "setono/sylius-qr-code-plugin",
+    "description": "Setono example plugin for Sylius.",
     "license": "MIT",
     "type": "sylius-plugin",
     "keywords": [
@@ -36,12 +36,12 @@
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "Acme\\SyliusExamplePlugin\\": "src/"
+            "Setono\\SyliusQRCodePlugin\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Acme\\SyliusExamplePlugin\\Tests\\": "tests/"
+            "Setono\\SyliusQRCodePlugin\\Tests\\": "tests/"
         },
         "classmap": [
             "tests/Application/Kernel.php"

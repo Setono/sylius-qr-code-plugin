@@ -1,0 +1,2 @@
+setono_sylius_qr_code:
+    resource: "@SetonoSyliusQRCodePlugin/Resources/config/routes.yaml"

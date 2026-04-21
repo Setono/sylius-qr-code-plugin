@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Acme\SyliusExamplePlugin\Tests\Application\Kernel;
+use Setono\SyliusQRCodePlugin\Tests\Application\Kernel;
 
 require __DIR__ . '/../../vendor/autoload.php';
 
