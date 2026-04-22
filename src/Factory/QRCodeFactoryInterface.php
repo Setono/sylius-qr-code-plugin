@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Setono\SyliusQRCodePlugin\Factory;
 
-use Setono\SyliusQRCodePlugin\Model\ProductRelatedQRCodeInterface;
-use Setono\SyliusQRCodePlugin\Model\TargetUrlQRCodeInterface;
+use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
+use Sylius\Resource\Factory\FactoryInterface;
 
-interface QRCodeFactoryInterface
+/**
+ * @extends FactoryInterface<QRCodeInterface>
+ */
+interface QRCodeFactoryInterface extends FactoryInterface
 {
-    public function createProductRelated(): ProductRelatedQRCodeInterface;
-
-    public function createTargetUrl(): TargetUrlQRCodeInterface;
+    public function createNew(): QRCodeInterface;
 }

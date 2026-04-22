@@ -20,14 +20,6 @@ final class ConfigurationTest extends TestCase
     /**
      * @test
      */
-    public function it_defaults_the_driver_to_doctrine_orm(): void
-    {
-        $this->assertProcessedConfigurationEquals([[]], ['driver' => 'doctrine/orm'], 'driver');
-    }
-
-    /**
-     * @test
-     */
     public function it_defaults_redirect_type_to_307(): void
     {
         $this->assertProcessedConfigurationEquals([[]], ['redirect_type' => 307], 'redirect_type');

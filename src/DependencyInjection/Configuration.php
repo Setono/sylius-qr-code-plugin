@@ -16,7 +16,6 @@ use Setono\SyliusQRCodePlugin\Model\TargetUrlQRCodeInterface;
 use Setono\SyliusQRCodePlugin\Repository\QRCodeRepository;
 use Setono\SyliusQRCodePlugin\Repository\QRCodeScanRepository;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
-use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
 use Sylius\Component\Resource\Factory\Factory;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -34,7 +33,6 @@ final class Configuration implements ConfigurationInterface
         $rootNode
             ->addDefaultsIfNotSet()
             ->children()
-                ->scalarNode('driver')->defaultValue(SyliusResourceBundle::DRIVER_DOCTRINE_ORM)->end()
                 ->integerNode('redirect_type')
                     ->defaultValue(307)
                     ->validate()
@@ -83,7 +81,6 @@ final class Configuration implements ConfigurationInterface
                                     ->addDefaultsIfNotSet()
                                     ->children()
                                         ->scalarNode('model')->defaultValue(QRCode::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('interface')->defaultValue(QRCodeInterface::class)->cannotBeEmpty()->end()
                                         ->scalarNode('controller')->defaultValue(QRCodeController::class)->cannotBeEmpty()->end()
                                         ->scalarNode('repository')->defaultValue(QRCodeRepository::class)->cannotBeEmpty()->end()
                                         ->scalarNode('factory')->defaultValue(Factory::class)->end()
@@ -99,7 +96,6 @@ final class Configuration implements ConfigurationInterface
                                     ->addDefaultsIfNotSet()
                                     ->children()
                                         ->scalarNode('model')->defaultValue(ProductRelatedQRCode::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('interface')->defaultValue(ProductRelatedQRCodeInterface::class)->cannotBeEmpty()->end()
                                         ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                         ->scalarNode('factory')->defaultValue(Factory::class)->end()
                                     ->end()
@@ -114,7 +110,6 @@ final class Configuration implements ConfigurationInterface
                                     ->addDefaultsIfNotSet()
                                     ->children()
                                         ->scalarNode('model')->defaultValue(TargetUrlQRCode::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('interface')->defaultValue(TargetUrlQRCodeInterface::class)->cannotBeEmpty()->end()
                                         ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                         ->scalarNode('factory')->defaultValue(Factory::class)->end()
                                     ->end()
@@ -129,7 +124,6 @@ final class Configuration implements ConfigurationInterface
                                     ->addDefaultsIfNotSet()
                                     ->children()
                                         ->scalarNode('model')->defaultValue(QRCodeScan::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('interface')->defaultValue(QRCodeScanInterface::class)->cannotBeEmpty()->end()
                                         ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                         ->scalarNode('repository')->defaultValue(QRCodeScanRepository::class)->cannotBeEmpty()->end()
                                         ->scalarNode('factory')->defaultValue(Factory::class)->end()

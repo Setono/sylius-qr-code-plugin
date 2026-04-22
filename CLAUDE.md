@@ -16,6 +16,9 @@ Follow clean code principles and SOLID design patterns when working with this co
 - Favor composition over inheritance
 - Write code that is easy to test and extend
 
+### Git Commit Policy
+**Never commit without explicit user instruction.** Even after a feature is complete, tests green, and everything verified — do NOT run `git commit` unless the user says to. The user drives the commit cadence. When ready to commit, the user will say so explicitly.
+
 ### Service Definitions in Plugins
 - **Services live in `src/Resources/config/services.xml`** (XML, not YAML, not PHP). This is the Symfony Best Practices recommendation for reusable bundles — XML is unambiguous about types and avoids the whitespace footguns of YAML.
 - **No autowire, no autoconfigure, no resource-based auto-discovery.** Every service is declared explicitly with its class, arguments, and tags. Plugins must not rely on the host application's autowire hints: what works in the test app may silently break in a consumer app with different bindings.
@@ -26,7 +29,8 @@ Follow clean code principles and SOLID design patterns when working with this co
   - `src/Action/` → `src/Resources/config/services/action.xml`
 
   Folders that contain no services (`Model/`, `Resources/`, `DependencyInjection/`) get no file. The rule keeps each XML file small and the service surface grep-able.
-- **Service IDs use the fully-qualified class name.** Interfaces are registered as `alias` entries pointing at the concrete implementation, e.g.:
+- **Service IDs are ALWAYS the fully-qualified class name.** No exceptions — this includes factory decorators, event listeners, actions, validators, everything. The only non-FQCN IDs that exist in the container come from `sylius_resource` auto-registration (`{plugin}.factory.{resource}`, `{plugin}.repository.{resource}`, etc.) — those are the decorated targets, not our declarations.
+- **Interfaces are registered as `alias` entries.** For a plain service the alias points at the concrete class:
   ```xml
   <service id="Setono\SyliusQRCodePlugin\Generator\QRCodeGenerator">
       <argument type="service" id="..."/>
@@ -34,8 +38,51 @@ Follow clean code principles and SOLID design patterns when working with this co
   <service id="Setono\SyliusQRCodePlugin\Generator\QRCodeGeneratorInterface"
            alias="Setono\SyliusQRCodePlugin\Generator\QRCodeGenerator"/>
   ```
+  For a Sylius factory decorator the alias points at the **Sylius-registered ID**, because decoration replaces the service at that ID — see "Sylius Factory Decoration" below.
 - **Services are private by default** (Symfony 5.4+ default). Mark `public="true"` only when the service must be fetched from the container directly (e.g. controllers invoked as services, console command tags, actions referenced by a router `controller` attribute).
 - **Inside the test application (`tests/Application/`)**, autowire/autoconfigure are fine — that's a typical Symfony app, not a reusable bundle.
+- **Always declare `decoration-priority` explicitly on any `decorates` service.** Never rely on Symfony's implicit default. Higher priority = outer decorator (called first). Plugin decorators use `decoration-priority="0"` (neutral) unless there's a specific reason to claim the outer or inner position; that way adopting apps can layer their own decorators above (positive) or below (negative). Explicit priority also prevents surprises when multiple decorators collide later — intent is visible in the XML.
+
+### Sylius Factory Decoration
+When a resource needs a custom factory (to seed defaults, derive a slug, snapshot a value at create time, etc.), **always decorate the Sylius-generated factory** rather than instantiating the entity directly.
+
+- Keep `classes.factory` in the Configuration tree at the generic `Sylius\Component\Resource\Factory\Factory::class`. Sylius will then auto-register `{app_name}.factory.{resource_name}` as a generic factory that creates entities of the configured model class.
+- Write a decorator that takes `Sylius\Resource\Factory\FactoryInterface` (the decorated factory) as **the first constructor argument** and delegates `createNew()` to it:
+  ```php
+  final class WidgetFactory implements WidgetFactoryInterface
+  {
+      public function __construct(
+          private readonly FactoryInterface $decoratedFactory,
+          private readonly SomeConfig $config,
+      ) {}
+
+      public function createNew(): WidgetInterface
+      {
+          $widget = $this->decoratedFactory->createNew();
+          assert($widget instanceof WidgetInterface);
+          $widget->setSomething($this->config->default());
+          return $widget;
+      }
+  }
+  ```
+- Register the decorator in `services/factory.xml` using Symfony's `decorates` attribute:
+  - **Service ID**: the decorator's FQCN (per "Service Definitions in Plugins" above — no exceptions).
+  - **`decorates`**: the Sylius-registered factory ID `{plugin_alias}.factory.{resource_name}`.
+  - **`decoration-priority`**: explicit value (never implicit). Use `"0"` for plugin factories unless there's a reason to claim outer/inner.
+  - **Inner service reference**: the expanded form `{FQCN}.inner` (not the shorthand `.inner`), so the wiring stays explicit and grep-able.
+  - **Interface alias**: points at the Sylius-registered ID (not at our decorator's FQCN) — decoration replaces the service at that ID, so consumers asking for the interface get the decorator transparently.
+  ```xml
+  <service id="My\Plugin\Factory\WidgetFactory"
+           decorates="my_plugin.factory.widget"
+           decoration-priority="0">
+      <argument type="service" id="My\Plugin\Factory\WidgetFactory.inner"/>
+      <argument type="service" id="..."/>
+  </service>
+  <service id="My\Plugin\Factory\WidgetFactoryInterface"
+           alias="my_plugin.factory.widget"/>
+  ```
+- Consumers inject `WidgetFactoryInterface` (or `my_plugin.factory.widget` by ID) — both resolve to the decorator.
+- **Why:** Respects whatever factory class the adopting app may have customized via `classes.factory`, preserves the Sylius resource-ID contract, and keeps the entity construction path consistent across plain creates and decorated creates. Directly `new`ing entities bypasses all of that.
 
 ### Doctrine Entity Conventions
 - **Nullable property + nullable getter when no sensible default exists.** If a property does not have a sensible literal default (e.g. `false`, `0`, a meaningful enum), declare it `?Type $x = null` and type the getter `?Type`. Do NOT reach for empty-string/placeholder sentinels (`''`, `'unknown'`, `new \DateTimeImmutable()`) just to satisfy a non-nullable type. Example: `protected string $userAgent = '';` → `protected ?string $userAgent = null;` with `getUserAgent(): ?string`.
@@ -43,6 +90,12 @@ Follow clean code principles and SOLID design patterns when working with this co
 - **No service injection in entity constructors.** It's a Symfony pattern that Doctrine entities don't take collaborators — state lives on them, behavior lives in services.
 - **Use Gedmo Timestampable for `createdAt` / `updatedAt`.** Never set these in the constructor or in a lifecycle callback by hand. Declare the ORM mapping field with `<gedmo:timestampable on="create"/>` (for `createdAt`/`scannedAt`-style fields) or `<gedmo:timestampable on="update"/>` (for `updatedAt`). Enable the listener once via `stof_doctrine_extensions.orm.default.timestampable: true` (the test app already does this). Gedmo populates the field at flush time; the PHP property stays nullable before persistence. This is the standard Sylius pattern — `stof/doctrine-extensions-bundle` is already registered in the test application.
 - Database-level NOT NULL constraints are independent of this — the property can be nullable in PHP while the column is `nullable="false"` in the ORM mapping. The caller (factory, controller, listener, or Gedmo listener) is responsible for populating before flush.
+
+### Assertions
+- **Never use PHP's native `assert()` function.** It's bypassable (disabled when `zend.assertions=-1`) and throws `\AssertionError`, which conflates programmer errors with runtime guards.
+- **Always use `Webmozart\Assert\Assert`** for runtime invariant checks. Example: `Assert::isInstanceOf($x, Foo::class)` instead of `assert($x instanceof Foo)`. It throws `\InvalidArgumentException` with a descriptive message, cannot be disabled, and gives PHPStan enough information to narrow the type of the checked variable afterwards.
+- `webmozart/assert` is a runtime dependency in `composer.json`.
+- Tests that previously expected `\AssertionError` must expect `\InvalidArgumentException` instead.
 
 ### Testing Requirements
 - **Aspire to 100% code coverage.** Any class under `src/` (including entities, form types, actions, services) should have a matching test class. If a line is genuinely untestable — e.g. a defensive `throw` for a case the type system already rules out, or framework glue with no meaningful seam — document that explicitly in the test or exclude it from coverage with a reason. "This is boilerplate" is not a reason to skip coverage; plain accessors on entities still get tested.

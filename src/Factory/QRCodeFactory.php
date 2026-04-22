@@ -4,47 +4,36 @@ declare(strict_types=1);
 
 namespace Setono\SyliusQRCodePlugin\Factory;
 
-use Setono\SyliusQRCodePlugin\Model\ProductRelatedQRCodeInterface;
 use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
-use Setono\SyliusQRCodePlugin\Model\TargetUrlQRCodeInterface;
+use Sylius\Resource\Factory\FactoryInterface;
+use Webmozart\Assert\Assert;
 
-final class QRCodeFactory implements QRCodeFactoryInterface
+/**
+ * Shared base for the subtype factories. Not instantiated directly — the base QRCode
+ * resource is abstract by convention (STI has two concrete subtypes).
+ */
+abstract class QRCodeFactory implements QRCodeFactoryInterface
 {
     /**
-     * @param class-string<ProductRelatedQRCodeInterface> $productRelatedClass
-     * @param class-string<TargetUrlQRCodeInterface>      $targetUrlClass
+     * @param FactoryInterface<QRCodeInterface> $decoratedFactory
      */
     public function __construct(
-        private readonly string $productRelatedClass,
-        private readonly string $targetUrlClass,
+        protected readonly FactoryInterface $decoratedFactory,
         private readonly int $defaultRedirectType,
         private readonly ?string $defaultUtmSource,
         private readonly ?string $defaultUtmMedium,
     ) {
     }
 
-    public function createProductRelated(): ProductRelatedQRCodeInterface
+    public function createNew(): QRCodeInterface
     {
-        /** @var ProductRelatedQRCodeInterface $qrCode */
-        $qrCode = new $this->productRelatedClass();
-        $this->applyDefaults($qrCode);
+        $qrCode = $this->decoratedFactory->createNew();
+        Assert::isInstanceOf($qrCode, QRCodeInterface::class);
 
-        return $qrCode;
-    }
-
-    public function createTargetUrl(): TargetUrlQRCodeInterface
-    {
-        /** @var TargetUrlQRCodeInterface $qrCode */
-        $qrCode = new $this->targetUrlClass();
-        $this->applyDefaults($qrCode);
-
-        return $qrCode;
-    }
-
-    private function applyDefaults(QRCodeInterface $qrCode): void
-    {
         $qrCode->setRedirectType($this->defaultRedirectType);
         $qrCode->setUtmSource($this->defaultUtmSource);
         $qrCode->setUtmMedium($this->defaultUtmMedium);
+
+        return $qrCode;
     }
 }

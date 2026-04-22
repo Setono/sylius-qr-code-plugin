@@ -15,6 +15,7 @@
         "gedmo/doctrine-extensions": "^3.11",
         "psr/log": "^1.1 || ^2.0 || ^3.0",
         "sylius/core-bundle": "^1.0",
+        "webmozart/assert": "^1.11",
         "symfony/config": "^5.4 || ^6.4 || ^7.0",
         "symfony/dependency-injection": "^5.4 || ^6.4 || ^7.0",
         "symfony/http-foundation": "^5.4 || ^6.4 || ^7.0",

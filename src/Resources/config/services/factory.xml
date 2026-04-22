@@ -5,21 +5,38 @@
                                https://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <!--
-        QRCodeFactory is a helper used by the subtype create-actions (Phase 3) to produce
-        entities with plugin-config-seeded defaults (redirect_type, utm_source, utm_medium).
-        It is NOT the Sylius Resource factory (those are the generic
-        Sylius\Component\Resource\Factory\Factory instances auto-registered per resource).
+        Each custom factory decorates the Sylius-registered {app}.factory.{name} service
+        (auto-registered by sylius_resource with the generic Factory class).
+        Service IDs are the decorator FQCN per CLAUDE.md "Service Definitions in Plugins";
+        the decorated Sylius ID is only referenced via the `decorates` attribute and the
+        interface alias (consumers asking for {app}.factory.{name} or the plugin interface
+        transparently get our decorator). `decoration-priority` is set explicitly per
+        CLAUDE.md — 0 (neutral) lets consumer apps decorate above (positive) or below (negative).
+        See CLAUDE.md "Sylius Factory Decoration" for the full pattern.
     -->
     <services>
-        <service id="Setono\SyliusQRCodePlugin\Factory\QRCodeFactory">
-            <argument>%setono_sylius_qr_code.model.product_related_qr_code.class%</argument>
-            <argument>%setono_sylius_qr_code.model.target_url_qr_code.class%</argument>
+        <service id="Setono\SyliusQRCodePlugin\Factory\ProductRelatedQRCodeFactory"
+                 decorates="setono_sylius_qr_code.factory.product_related_qr_code"
+                 decoration-priority="0">
+            <argument type="service" id="Setono\SyliusQRCodePlugin\Factory\ProductRelatedQRCodeFactory.inner"/>
             <argument>%setono_sylius_qr_code.redirect_type%</argument>
             <argument>%setono_sylius_qr_code.utm.source%</argument>
             <argument>%setono_sylius_qr_code.utm.medium%</argument>
         </service>
 
-        <service id="Setono\SyliusQRCodePlugin\Factory\QRCodeFactoryInterface"
-                 alias="Setono\SyliusQRCodePlugin\Factory\QRCodeFactory"/>
+        <service id="Setono\SyliusQRCodePlugin\Factory\ProductRelatedQRCodeFactoryInterface"
+                 alias="setono_sylius_qr_code.factory.product_related_qr_code"/>
+
+        <service id="Setono\SyliusQRCodePlugin\Factory\TargetUrlQRCodeFactory"
+                 decorates="setono_sylius_qr_code.factory.target_url_qr_code"
+                 decoration-priority="0">
+            <argument type="service" id="Setono\SyliusQRCodePlugin\Factory\TargetUrlQRCodeFactory.inner"/>
+            <argument>%setono_sylius_qr_code.redirect_type%</argument>
+            <argument>%setono_sylius_qr_code.utm.source%</argument>
+            <argument>%setono_sylius_qr_code.utm.medium%</argument>
+        </service>
+
+        <service id="Setono\SyliusQRCodePlugin\Factory\TargetUrlQRCodeFactoryInterface"
+                 alias="setono_sylius_qr_code.factory.target_url_qr_code"/>
     </services>
 </container>

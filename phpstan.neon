@@ -22,3 +22,18 @@ parameters:
 
     reportUnmatchedIgnoredErrors: false
     treatPhpDocTypesAsCertain: false
+
+    # Our entity convention is "nullable PHP property, NOT NULL DB column" — the caller populates
+    # the field (factory, listener, controller) before flush. phpstan-doctrine's doctrine.columnType
+    # rule cannot express this split, so we silence it plugin-wide. See CLAUDE.md
+    # "Doctrine Entity Conventions" for the rationale.
+    ignoreErrors:
+        -
+            identifier: doctrine.columnType
+            path: src/Model/*
+        # Same rationale — plugin uses interfaces on relation properties (ProductInterface,
+        # QRCodeInterface, ...) whereas phpstan-doctrine resolves relations to the concrete
+        # app-level entity class at schema build time.
+        -
+            identifier: doctrine.associationType
+            path: src/Model/*

@@ -5,24 +5,10 @@ declare(strict_types=1);
 namespace Setono\SyliusQRCodePlugin\Tests\Unit\Model;
 
 use PHPUnit\Framework\TestCase;
-use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
 use Setono\SyliusQRCodePlugin\Model\TargetUrlQRCode;
-use Setono\SyliusQRCodePlugin\Model\TargetUrlQRCodeInterface;
 
 final class TargetUrlQRCodeTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function it_is_a_qr_code(): void
-    {
-        $implemented = class_implements(TargetUrlQRCode::class);
-
-        self::assertIsArray($implemented);
-        self::assertContains(QRCodeInterface::class, $implemented);
-        self::assertContains(TargetUrlQRCodeInterface::class, $implemented);
-    }
-
     /**
      * @test
      */

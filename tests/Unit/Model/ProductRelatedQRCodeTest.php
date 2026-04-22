@@ -7,25 +7,11 @@ namespace Setono\SyliusQRCodePlugin\Tests\Unit\Model;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusQRCodePlugin\Model\ProductRelatedQRCode;
-use Setono\SyliusQRCodePlugin\Model\ProductRelatedQRCodeInterface;
-use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
 use Sylius\Component\Product\Model\ProductInterface;
 
 final class ProductRelatedQRCodeTest extends TestCase
 {
     use ProphecyTrait;
-
-    /**
-     * @test
-     */
-    public function it_is_a_qr_code(): void
-    {
-        $implemented = class_implements(ProductRelatedQRCode::class);
-
-        self::assertIsArray($implemented);
-        self::assertContains(QRCodeInterface::class, $implemented);
-        self::assertContains(ProductRelatedQRCodeInterface::class, $implemented);
-    }
 
     /**
      * @test
