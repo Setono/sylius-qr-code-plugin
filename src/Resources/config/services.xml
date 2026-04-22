@@ -34,11 +34,9 @@
                      alias="Setono\SyliusQRCodePlugin\Generator\QRCodeGenerator"/>
     -->
 
-    <!--
-        <imports> block goes here with one <import resource="services/<folder>.xml"/> line per
-        per-folder service file (added as classes land in Phase 2+). An empty <imports/> element
-        is not allowed by the XSD; omit the element entirely while no files are yet imported.
-    -->
+    <imports>
+        <import resource="services/factory.xml"/>
+    </imports>
 
     <services/>
 

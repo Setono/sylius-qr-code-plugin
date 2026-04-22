@@ -30,10 +30,10 @@
 
 ## 4. Sylius Resource Configuration
 
-- [ ] 4.1 Prepend `sylius_resource.resources` for `setono_sylius_qr_code.qr_code` (base), `.product_related_qr_code`, `.target_url_qr_code`, `.qr_code_scan` with interfaces, repository, and form classes
-- [ ] 4.2 Create `QRCodeRepositoryInterface` / `QRCodeRepository` with `findOneEnabledBySlug(string $slug): ?QRCodeInterface` and `getScansCount(QRCodeInterface): int`
-- [ ] 4.3 Create `QRCodeScanRepositoryInterface` / `QRCodeScanRepository` with time-range aggregation methods for the stats page
-- [ ] 4.4 Create `QRCodeFactoryInterface` / `QRCodeFactory` (two methods: `createProductRelated()`, `createTargetUrl()`) that seed defaults from the config
+- [x] 4.1 Register resources via `AbstractResourceExtension::registerResources()` in the extension (driver + resources tree on the Configuration); bundle extends `AbstractResourceBundle`. Registers `qr_code` (base), `.product_related_qr_code`, `.target_url_qr_code`, `.qr_code_scan` with model/interface/controller/repository/factory classes
+- [x] 4.2 Create `QRCodeRepositoryInterface` / `QRCodeRepository` with `findOneEnabledBySlug(string $slug): ?QRCodeInterface` and `getScansCount(QRCodeInterface): int` (plus `findOneBySlug` for validators)
+- [x] 4.3 Create `QRCodeScanRepositoryInterface` / `QRCodeScanRepository` with time-range aggregation methods for the stats page
+- [x] 4.4 Create `QRCodeFactoryInterface` / `QRCodeFactory` (two methods: `createProductRelated()`, `createTargetUrl()`) that seed defaults from the config — registered via `src/Resources/config/services/factory.xml`
 
 ## 5. Admin Grid and Routes
 

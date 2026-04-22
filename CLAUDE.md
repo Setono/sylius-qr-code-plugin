@@ -120,6 +120,10 @@ Use the right tool for the right job when executing bash commands:
 - **Interacting with JSON?** → Use `jq` (JSON processor). **NEVER use `python`/`python3` for JSON parsing — always `jq`.**
 - **Interacting with YAML or XML?** → Use `yq` (YAML/XML processor)
 
+### Path Conventions
+- **Never use absolute paths in Bash commands.** Always use relative paths from the project root. For example, `tests/Application/bin/console` rather than `/Users/.../tests/Application/bin/console`.
+- **Don't `cd` into subdirectories just to run a binary.** Invoke the binary at its relative path instead — e.g. `tests/Application/bin/console <command>`, not `cd tests/Application && bin/console <command>`. Symfony console commands work from any working directory when invoked by path. Preserving the working directory keeps subsequent commands consistent.
+
 Examples:
 - `fd "*.php" | fzf` - Find PHP files and interactively select one
 - `rg "function.*validate" | fzf` - Search for validation functions and select

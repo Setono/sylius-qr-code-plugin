@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+                               https://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <!--
+        QRCodeFactory is a helper used by the subtype create-actions (Phase 3) to produce
+        entities with plugin-config-seeded defaults (redirect_type, utm_source, utm_medium).
+        It is NOT the Sylius Resource factory (those are the generic
+        Sylius\Component\Resource\Factory\Factory instances auto-registered per resource).
+    -->
+    <services>
+        <service id="Setono\SyliusQRCodePlugin\Factory\QRCodeFactory">
+            <argument>%setono_sylius_qr_code.model.product_related_qr_code.class%</argument>
+            <argument>%setono_sylius_qr_code.model.target_url_qr_code.class%</argument>
+            <argument>%setono_sylius_qr_code.redirect_type%</argument>
+            <argument>%setono_sylius_qr_code.utm.source%</argument>
+            <argument>%setono_sylius_qr_code.utm.medium%</argument>
+        </service>
+
+        <service id="Setono\SyliusQRCodePlugin\Factory\QRCodeFactoryInterface"
+                 alias="Setono\SyliusQRCodePlugin\Factory\QRCodeFactory"/>
+    </services>
+</container>

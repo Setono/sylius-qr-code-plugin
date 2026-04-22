@@ -20,19 +20,41 @@ final class ConfigurationTest extends TestCase
     /**
      * @test
      */
-    public function it_uses_sensible_defaults_when_no_config_is_provided(): void
+    public function it_defaults_the_driver_to_doctrine_orm(): void
     {
-        $this->assertProcessedConfigurationEquals([[]], [
-            'redirect_type' => 307,
-            'utm' => [
-                'source' => 'qr',
-                'medium' => 'qrcode',
-            ],
-            'logo' => [
-                'path' => null,
-                'size' => 60,
-            ],
-        ]);
+        $this->assertProcessedConfigurationEquals([[]], ['driver' => 'doctrine/orm'], 'driver');
+    }
+
+    /**
+     * @test
+     */
+    public function it_defaults_redirect_type_to_307(): void
+    {
+        $this->assertProcessedConfigurationEquals([[]], ['redirect_type' => 307], 'redirect_type');
+    }
+
+    /**
+     * @test
+     */
+    public function it_defaults_utm_parameters(): void
+    {
+        $this->assertProcessedConfigurationEquals(
+            [[]],
+            ['utm' => ['source' => 'qr', 'medium' => 'qrcode']],
+            'utm',
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_defaults_logo_configuration(): void
+    {
+        $this->assertProcessedConfigurationEquals(
+            [[]],
+            ['logo' => ['path' => null, 'size' => 60]],
+            'logo',
+        );
     }
 
     /**
