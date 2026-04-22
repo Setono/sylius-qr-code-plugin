@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:gedmo="http://gediminasm.org/schemas/orm/doctrine-extensions-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                                      https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <mapped-superclass name="Setono\SyliusQRCodePlugin\Model\QRCodeScan" table="setono_sylius_qr_code__qr_code_scan">
+        <id name="id" type="integer" column="id">
+            <generator strategy="AUTO"/>
+        </id>
+
+        <field name="scannedAt" type="datetime_immutable" column="scanned_at">
+            <gedmo:timestampable on="create"/>
+        </field>
+        <!-- 45 = maximum length of an IPv6 address (e.g. an IPv4-mapped IPv6 address like ::ffff:255.255.255.255). -->
+        <field name="ipAddress" type="string" length="45" column="ip_address"/>
+        <field name="userAgent" type="string" length="512" column="user_agent"/>
+
+        <many-to-one field="qrCode" target-entity="Setono\SyliusQRCodePlugin\Model\QRCodeInterface" inversed-by="scans">
+            <join-column name="qr_code_id" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
+        </many-to-one>
+    </mapped-superclass>
+
+</doctrine-mapping>

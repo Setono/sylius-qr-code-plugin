@@ -18,11 +18,34 @@ final class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
 
         $rootNode
+            ->addDefaultsIfNotSet()
             ->children()
-                ->scalarNode('option')
-                    ->info('This is an example configuration option')
-                    ->isRequired()
-                    ->cannotBeEmpty()
+                ->integerNode('redirect_type')
+                    ->defaultValue(307)
+                    ->validate()
+                        ->ifNotInArray([301, 302, 307])
+                        ->thenInvalid('Invalid redirect_type %s; allowed values: 301, 302, 307.')
+                    ->end()
+                ->end()
+                ->arrayNode('utm')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('source')->defaultValue('qr')->cannotBeEmpty()->end()
+                        ->scalarNode('medium')->defaultValue('qrcode')->cannotBeEmpty()->end()
+                    ->end()
+                ->end()
+                ->arrayNode('logo')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('path')->defaultNull()->end()
+                        ->integerNode('size')
+                            ->defaultValue(60)
+                            ->min(0)
+                            ->max(100)
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
         ;
 
         return $treeBuilder;

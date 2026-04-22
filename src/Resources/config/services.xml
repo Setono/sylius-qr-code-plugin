@@ -1,7 +1,45 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
-           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
-    <services>
-        <!-- Put your services here -->
-    </services>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+                               https://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <!--
+        Plugin services are declared explicitly (no autowire / autoconfigure / resource-based auto-discovery).
+        See CLAUDE.md "Service Definitions in Plugins" for the rationale.
+
+        This file is a dispatcher. Services themselves live in per-folder files under
+        `src/Resources/config/services/<folder>.xml`, one file per root folder under `src/` that contains
+        services. For example:
+
+            src/Resolver/           -> src/Resources/config/services/resolver.xml
+            src/Generator/          -> src/Resources/config/services/generator.xml
+            src/Tracker/            -> src/Resources/config/services/tracker.xml
+            src/Action/             -> src/Resources/config/services/action.xml
+            src/Form/               -> src/Resources/config/services/form.xml
+            src/Menu/               -> src/Resources/config/services/menu.xml
+            src/Validator/          -> src/Resources/config/services/validator.xml
+            ...
+
+        Folders that don't contain services (Model/, Resources/, DependencyInjection/) don't get a file.
+
+        Each per-folder file uses the same XML format. Import them below via `<imports>`. Service IDs use
+        the fully qualified class name; interfaces are registered as `alias` entries pointing at the
+        concrete implementation, e.g.:
+
+            <service id="Setono\SyliusQRCodePlugin\Generator\QRCodeGenerator">
+                <argument type="service" id="..."/>
+            </service>
+            <service id="Setono\SyliusQRCodePlugin\Generator\QRCodeGeneratorInterface"
+                     alias="Setono\SyliusQRCodePlugin\Generator\QRCodeGenerator"/>
+    -->
+
+    <!--
+        <imports> block goes here with one <import resource="services/<folder>.xml"/> line per
+        per-folder service file (added as classes land in Phase 2+). An empty <imports/> element
+        is not allowed by the XSD; omit the element entirely while no files are yet imported.
+    -->
+
+    <services/>
+
 </container>
