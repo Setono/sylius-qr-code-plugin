@@ -6,6 +6,9 @@
 
     <mapped-superclass name="Setono\SyliusQRCodePlugin\Model\ProductRelatedQRCode">
         <many-to-one field="product" target-entity="Sylius\Component\Product\Model\ProductInterface">
+            <!-- product_id is nullable at the DB level because STI rows of other types do not
+                 have a product; the application-layer NotNull validator enforces non-null for
+                 product QR codes. -->
             <join-column name="product_id" referenced-column-name="id" nullable="true" on-delete="CASCADE"/>
         </many-to-one>
     </mapped-superclass>

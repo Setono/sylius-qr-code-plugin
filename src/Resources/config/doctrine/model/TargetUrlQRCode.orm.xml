@@ -5,6 +5,8 @@
                                       https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
 
     <mapped-superclass name="Setono\SyliusQRCodePlugin\Model\TargetUrlQRCode">
+        <!-- target_url is nullable at the DB level because STI rows of other types do not have
+             a target URL; the application-layer validator enforces non-null/Url/Length on it. -->
         <field name="targetUrl" type="string" length="2048" column="target_url" nullable="true"/>
     </mapped-superclass>
 

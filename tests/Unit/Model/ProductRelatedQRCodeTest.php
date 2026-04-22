@@ -7,6 +7,7 @@ namespace Setono\SyliusQRCodePlugin\Tests\Unit\Model;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusQRCodePlugin\Model\ProductRelatedQRCode;
+use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
 use Sylius\Component\Product\Model\ProductInterface;
 
 final class ProductRelatedQRCodeTest extends TestCase
@@ -46,5 +47,13 @@ final class ProductRelatedQRCodeTest extends TestCase
         $qrCode->setProduct(null);
 
         self::assertNull($qrCode->getProduct());
+    }
+
+    /**
+     * @test
+     */
+    public function it_reports_its_type_as_product(): void
+    {
+        self::assertSame(QRCodeInterface::TYPE_PRODUCT, (new ProductRelatedQRCode())->getType());
     }
 }

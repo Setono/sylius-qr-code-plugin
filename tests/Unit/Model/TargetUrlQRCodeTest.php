@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusQRCodePlugin\Tests\Unit\Model;
 
 use PHPUnit\Framework\TestCase;
+use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
 use Setono\SyliusQRCodePlugin\Model\TargetUrlQRCode;
 
 final class TargetUrlQRCodeTest extends TestCase
@@ -38,5 +39,13 @@ final class TargetUrlQRCodeTest extends TestCase
         $qrCode->setTargetUrl(null);
 
         self::assertNull($qrCode->getTargetUrl());
+    }
+
+    /**
+     * @test
+     */
+    public function it_reports_its_type_as_target_url(): void
+    {
+        self::assertSame(QRCodeInterface::TYPE_TARGET_URL, (new TargetUrlQRCode())->getType());
     }
 }

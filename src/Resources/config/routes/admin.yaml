@@ -1,1 +1,83 @@
-# TODO Add your admin routes here
+# Base QR code resource: index (grid) + delete + a custom update that dispatches to the subtype route.
+# The two subtype resources below each own create + update (the actual forms). Custom routes
+# (stats, download, generate-name) are declared explicitly at the bottom of this file.
+
+setono_sylius_qr_code_admin_qr_code:
+    resource: |
+        alias: setono_sylius_qr_code.qr_code
+        section: admin
+        templates: "@SyliusAdmin\\Crud"
+        redirect: index
+        grid: setono_sylius_qr_code_admin_qr_code
+        vars:
+            all:
+                subheader: setono_sylius_qr_code.ui.manage_qr_codes
+            index:
+                icon: qrcode
+        except: ['create', 'show']
+    type: sylius.resource
+
+setono_sylius_qr_code_admin_product_related_qr_code:
+    resource: |
+        alias: setono_sylius_qr_code.product_related_qr_code
+        section: admin
+        templates: "@SyliusAdmin\\Crud"
+        only: ['create', 'update']
+        vars:
+            all:
+                subheader: setono_sylius_qr_code.ui.product_qr_code
+    type: sylius.resource
+
+# After saving a subtype (create/update), Sylius's RedirectHandler looks up
+# `{resource_name}_index`. Both subtypes only register create+update, so their `_index` doesn't
+# exist — we alias it to a redirect that sends admins back to the unified base grid.
+setono_sylius_qr_code_admin_product_related_qr_code_index:
+    path: /product-related-qr-codes/
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::redirectAction
+    defaults:
+        route: setono_sylius_qr_code_admin_qr_code_index
+        permanent: false
+
+setono_sylius_qr_code_admin_target_url_qr_code:
+    resource: |
+        alias: setono_sylius_qr_code.target_url_qr_code
+        section: admin
+        templates: "@SyliusAdmin\\Crud"
+        only: ['create', 'update']
+        vars:
+            all:
+                subheader: setono_sylius_qr_code.ui.url_qr_code
+    type: sylius.resource
+
+setono_sylius_qr_code_admin_target_url_qr_code_index:
+    path: /target-url-qr-codes/
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::redirectAction
+    defaults:
+        route: setono_sylius_qr_code_admin_qr_code_index
+        permanent: false
+
+# Custom admin routes. Controllers are implemented in later phases; the routes are declared here
+# so the admin grid (which links to them) can render without a RouteNotFoundException.
+
+setono_sylius_qr_code_admin_qr_code_stats:
+    path: /qr-codes/{id}/stats
+    controller: Setono\SyliusQRCodePlugin\Action\Admin\StatsAction
+    methods: [GET]
+    requirements:
+        id: '\d+'
+
+setono_sylius_qr_code_admin_qr_code_download:
+    path: /qr-codes/{id}/download/{format}/{channel}
+    controller: Setono\SyliusQRCodePlugin\Action\Admin\DownloadAction
+    methods: [GET]
+    defaults:
+        format: png
+        channel: ~
+    requirements:
+        id: '\d+'
+        format: png|svg|pdf
+
+setono_sylius_qr_code_admin_qr_code_generate_name:
+    path: /qr-codes/generate-name
+    controller: Setono\SyliusQRCodePlugin\Action\Admin\GenerateNameAction
+    methods: [POST]

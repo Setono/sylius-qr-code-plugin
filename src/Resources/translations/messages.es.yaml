@@ -1,0 +1,43 @@
+setono_sylius_qr_code:
+    ui:
+        qr_codes: QR codes
+        qr_code: QR code
+        manage_qr_codes: Manage QR codes
+        name: Name
+        slug: Slug
+        type: Type
+        type_product: Product
+        type_target_url: URL
+        target_url: Target URL
+        product: Product
+        embed_logo: Embed logo
+        enabled: Enabled
+        scans: Scans
+        see_stats: See stats
+        download: Download
+        generate_qr_codes: Generate QR codes
+        create_product_qr_code: Product QR code
+        create_url_qr_code: URL QR code
+        product_qr_code: Product QR code
+        url_qr_code: URL QR code
+        new_product_related_qr_code: New product QR code
+        new_target_url_qr_code: New URL QR code
+        edit_product_related_qr_code: Edit product QR code
+        edit_target_url_qr_code: Edit URL QR code
+        redirect_type: Redirect type
+        error_correction_level: Error correction level
+        utm_source: UTM source
+        utm_medium: UTM medium
+        utm_campaign: UTM campaign
+        advanced_settings: Advanced settings
+        statistics: Statistics
+        total_scans: Total scans
+        last_7_days: Last 7 days
+        last_30_days: Last 30 days
+        last_90_days: Last 90 days
+        scans_over_time: Scans over time
+        recent_scans: Recent scans
+        export_csv: Export CSV
+        date_time: Date / time
+        ip_address: IP address
+        user_agent: User agent

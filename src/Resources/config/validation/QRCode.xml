@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<constraint-mapping xmlns="http://symfony.com/schema/dic/constraint-mapping"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://symfony.com/schema/dic/constraint-mapping https://symfony.com/schema/dic/constraint-mapping/constraint-mapping-1.0.xsd">
+
+    <class name="Setono\SyliusQRCodePlugin\Model\QRCode">
+        <property name="name">
+            <constraint name="NotBlank">
+                <option name="message">setono_sylius_qr_code.qr_code.name.not_blank</option>
+                <option name="groups">
+                    <value>setono_sylius_qr_code</value>
+                </option>
+            </constraint>
+            <constraint name="Length">
+                <option name="max">255</option>
+                <option name="maxMessage">setono_sylius_qr_code.qr_code.name.too_long</option>
+                <option name="groups">
+                    <value>setono_sylius_qr_code</value>
+                </option>
+            </constraint>
+        </property>
+
+        <property name="slug">
+            <constraint name="NotBlank">
+                <option name="message">setono_sylius_qr_code.qr_code.slug.not_blank</option>
+                <option name="groups">
+                    <value>setono_sylius_qr_code</value>
+                </option>
+            </constraint>
+            <constraint name="Length">
+                <option name="max">100</option>
+                <option name="maxMessage">setono_sylius_qr_code.qr_code.slug.too_long</option>
+                <option name="groups">
+                    <value>setono_sylius_qr_code</value>
+                </option>
+            </constraint>
+            <constraint name="Regex">
+                <option name="pattern">/^[a-z0-9-]+$/</option>
+                <option name="message">setono_sylius_qr_code.qr_code.slug.invalid_format</option>
+                <option name="groups">
+                    <value>setono_sylius_qr_code</value>
+                </option>
+            </constraint>
+        </property>
+
+        <property name="errorCorrectionLevel">
+            <constraint name="Choice">
+                <option name="choices">
+                    <value>L</value>
+                    <value>M</value>
+                    <value>Q</value>
+                    <value>H</value>
+                </option>
+                <option name="message">setono_sylius_qr_code.qr_code.error_correction_level.invalid</option>
+                <option name="groups">
+                    <value>setono_sylius_qr_code</value>
+                </option>
+            </constraint>
+        </property>
+
+        <constraint name="Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity">
+            <option name="fields">slug</option>
+            <option name="message">setono_sylius_qr_code.qr_code.slug_not_unique</option>
+            <option name="groups">
+                <value>setono_sylius_qr_code</value>
+            </option>
+        </constraint>
+    </class>
+
+</constraint-mapping>

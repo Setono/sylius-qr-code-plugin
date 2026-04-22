@@ -170,4 +170,21 @@ final class QRCodeTest extends TestCase
         self::assertSame($qrCode->getScans(), $qrCode->getScans());
     }
 
+    /**
+     * @test
+     */
+    public function it_reports_zero_scans_for_a_new_qr_code(): void
+    {
+        self::assertSame(0, (new QRCode())->getScansCount());
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_when_get_type_is_called_on_the_base_class(): void
+    {
+        $this->expectException(\LogicException::class);
+
+        (new QRCode())->getType();
+    }
 }

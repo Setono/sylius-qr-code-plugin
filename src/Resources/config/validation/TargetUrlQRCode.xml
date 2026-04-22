@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<constraint-mapping xmlns="http://symfony.com/schema/dic/constraint-mapping"
+                    xmlns:xsi="http://symfony.com/schema/dic/constraint-mapping/constraint-mapping-1.0.xsd">
+
+    <class name="Setono\SyliusQRCodePlugin\Model\TargetUrlQRCode">
+        <property name="targetUrl">
+            <constraint name="NotBlank">
+                <option name="message">setono_sylius_qr_code.target_url_qr_code.target_url.not_blank</option>
+                <option name="groups">
+                    <value>setono_sylius_qr_code</value>
+                </option>
+            </constraint>
+            <constraint name="Length">
+                <option name="max">2048</option>
+                <option name="maxMessage">setono_sylius_qr_code.target_url_qr_code.target_url.too_long</option>
+                <option name="groups">
+                    <value>setono_sylius_qr_code</value>
+                </option>
+            </constraint>
+            <constraint name="Url">
+                <option name="message">setono_sylius_qr_code.target_url_qr_code.target_url.invalid</option>
+                <option name="groups">
+                    <value>setono_sylius_qr_code</value>
+                </option>
+            </constraint>
+        </property>
+    </class>
+
+</constraint-mapping>

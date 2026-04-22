@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace Setono\SyliusQRCodePlugin\DependencyInjection;
 
 use Setono\SyliusQRCodePlugin\Controller\QRCodeController;
+use Setono\SyliusQRCodePlugin\Form\Type\ProductRelatedQRCodeType;
+use Setono\SyliusQRCodePlugin\Form\Type\TargetUrlQRCodeType;
 use Setono\SyliusQRCodePlugin\Model\ProductRelatedQRCode;
-use Setono\SyliusQRCodePlugin\Model\ProductRelatedQRCodeInterface;
 use Setono\SyliusQRCodePlugin\Model\QRCode;
-use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
 use Setono\SyliusQRCodePlugin\Model\QRCodeScan;
-use Setono\SyliusQRCodePlugin\Model\QRCodeScanInterface;
 use Setono\SyliusQRCodePlugin\Model\TargetUrlQRCode;
-use Setono\SyliusQRCodePlugin\Model\TargetUrlQRCodeInterface;
 use Setono\SyliusQRCodePlugin\Repository\QRCodeRepository;
 use Setono\SyliusQRCodePlugin\Repository\QRCodeScanRepository;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
@@ -98,6 +96,7 @@ final class Configuration implements ConfigurationInterface
                                         ->scalarNode('model')->defaultValue(ProductRelatedQRCode::class)->cannotBeEmpty()->end()
                                         ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                         ->scalarNode('factory')->defaultValue(Factory::class)->end()
+                                        ->scalarNode('form')->defaultValue(ProductRelatedQRCodeType::class)->cannotBeEmpty()->end()
                                     ->end()
                                 ->end()
                             ->end()
@@ -112,6 +111,7 @@ final class Configuration implements ConfigurationInterface
                                         ->scalarNode('model')->defaultValue(TargetUrlQRCode::class)->cannotBeEmpty()->end()
                                         ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                         ->scalarNode('factory')->defaultValue(Factory::class)->end()
+                                        ->scalarNode('form')->defaultValue(TargetUrlQRCodeType::class)->cannotBeEmpty()->end()
                                     ->end()
                                 ->end()
                             ->end()

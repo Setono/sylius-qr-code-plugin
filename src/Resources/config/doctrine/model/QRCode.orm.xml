@@ -5,7 +5,18 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                                       https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
 
-    <mapped-superclass name="Setono\SyliusQRCodePlugin\Model\QRCode" table="setono_sylius_qr_code__qr_code">
+    <!--
+        The base QRCode resource uses Single Table Inheritance. The discriminator-map is NOT
+        declared here because the concrete subtype classes are only known at runtime (they
+        come from `sylius_resource.resources.*.classes.model`). A Doctrine loadClassMetadata
+        listener (QRCodeDiscriminatorMapListener) populates the map when Doctrine loads this
+        metadata. This keeps the plugin compatible with apps that override a subtype class.
+    -->
+    <mapped-superclass name="Setono\SyliusQRCodePlugin\Model\QRCode"
+                       table="setono_sylius_qr_code__qr_code"
+                       inheritance-type="SINGLE_TABLE">
+        <discriminator-column name="type" type="string" length="20"/>
+
         <id name="id" type="integer" column="id">
             <generator strategy="AUTO"/>
         </id>
@@ -27,7 +38,7 @@
             <gedmo:timestampable on="update"/>
         </field>
 
-        <one-to-many field="scans" target-entity="Setono\SyliusQRCodePlugin\Model\QRCodeScanInterface" mapped-by="qrCode" fetch="EXTRA_LAZY">
+        <one-to-many field="scans" target-entity="Setono\SyliusQRCodePlugin\Model\QRCodeScan" mapped-by="qrCode" fetch="EXTRA_LAZY">
             <cascade>
                 <cascade-remove/>
             </cascade>

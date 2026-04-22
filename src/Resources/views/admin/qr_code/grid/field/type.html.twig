@@ -1,0 +1,7 @@
+{% if data == constant('Setono\\SyliusQRCodePlugin\\Model\\QRCodeInterface::TYPE_PRODUCT') %}
+    <span class="ui label blue">{{ 'setono_sylius_qr_code.ui.type_product'|trans }}</span>
+{% elseif data == constant('Setono\\SyliusQRCodePlugin\\Model\\QRCodeInterface::TYPE_TARGET_URL') %}
+    <span class="ui label">{{ 'setono_sylius_qr_code.ui.type_target_url'|trans }}</span>
+{% else %}
+    -
+{% endif %}

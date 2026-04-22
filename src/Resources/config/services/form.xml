@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+                               https://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Setono\SyliusQRCodePlugin\Form\Type\ProductRelatedQRCodeType">
+            <argument>%setono_sylius_qr_code.model.product_related_qr_code.class%</argument>
+            <argument type="collection">
+                <argument>setono_sylius_qr_code</argument>
+            </argument>
+            <tag name="form.type"/>
+        </service>
+
+        <service id="Setono\SyliusQRCodePlugin\Form\Type\TargetUrlQRCodeType">
+            <argument>%setono_sylius_qr_code.model.target_url_qr_code.class%</argument>
+            <argument type="collection">
+                <argument>setono_sylius_qr_code</argument>
+            </argument>
+            <tag name="form.type"/>
+        </service>
+    </services>
+</container>

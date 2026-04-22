@@ -27,6 +27,16 @@ interface QRCodeInterface extends ResourceInterface, ToggleableInterface
 
     public const REDIRECT_TYPES = [301, 302, 307];
 
+    public const TYPE_PRODUCT = 'product';
+
+    public const TYPE_TARGET_URL = 'target_url';
+
+    /**
+     * Returns the STI discriminator value for this QR code (one of the TYPE_* constants).
+     * Mirrors the DiscriminatorMap declared on the app-level QRCode entity.
+     */
+    public function getType(): string;
+
     public function getName(): ?string;
 
     public function setName(?string $name): void;
@@ -71,4 +81,6 @@ interface QRCodeInterface extends ResourceInterface, ToggleableInterface
      * @return Collection<array-key, QRCodeScanInterface>
      */
     public function getScans(): Collection;
+
+    public function getScansCount(): int;
 }

@@ -10,6 +10,11 @@ class ProductRelatedQRCode extends QRCode implements ProductRelatedQRCodeInterfa
 {
     protected ?ProductInterface $product = null;
 
+    public function getType(): string
+    {
+        return self::TYPE_PRODUCT;
+    }
+
     public function getProduct(): ?ProductInterface
     {
         return $this->product;

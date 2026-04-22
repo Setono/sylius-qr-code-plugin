@@ -151,4 +151,22 @@ class QRCode implements QRCodeInterface
     {
         return $this->scans;
     }
+
+    public function getScansCount(): int
+    {
+        // The scans collection is mapped with fetch="EXTRA_LAZY", so count() runs a single
+        // COUNT(*) query without hydrating the rows.
+        return $this->scans->count();
+    }
+
+    public function getType(): string
+    {
+        // The base class is abstract by convention (Sylius resource bundle limitation); real
+        // instances are always ProductRelatedQRCode or TargetUrlQRCode, both of which override
+        // this method.
+        throw new \LogicException(sprintf(
+            'QR code type is not defined for %s. Subclasses must override getType().',
+            static::class,
+        ));
+    }
 }

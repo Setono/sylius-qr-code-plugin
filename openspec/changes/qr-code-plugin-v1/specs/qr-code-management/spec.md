@@ -47,6 +47,23 @@ A QR code's `slug` SHALL match the regex `^[a-z0-9-]+$`. The `slug` SHALL be glo
 - **WHEN** an admin submits a slug containing an uppercase letter, space, or special character (e.g. `Summer Sale!`)
 - **THEN** the form fails validation with a regex-mismatch error
 
+### Requirement: Forms Enforce Symfony Validation Before Persistence
+
+Every admin create / update form SHALL be wired to Symfony's Validator such that a submit with invalid data is rejected with per-field error messages and is NEVER allowed to proceed to Doctrine flush. Database-level NOT NULL / UNIQUE / length constraints MUST NOT act as the first line of defence — they exist only as a safety net. In practice this means:
+
+- The form type's `validation_groups` option and the `groups` option on each constraint SHALL be aligned so the constraints actually run when the form is submitted. A form declaring `validation_groups: ['foo']` against constraints in the default group is a configuration bug.
+- Constraint violation messages SHALL live in the `validators` translation domain (not `messages`), since Symfony's validator resolves its translations there by default.
+
+#### Scenario: Submitting an empty form shows field-level errors and does not touch the database
+
+- **WHEN** an admin submits any QR code create form with blank required fields
+- **THEN** the form re-renders with per-field validation error messages and no row is inserted into `setono_sylius_qr_code__qr_code`
+
+#### Scenario: Database-level NOT NULL is not reachable from form submission
+
+- **WHEN** an admin submits a form with any combination of missing required fields
+- **THEN** the response is never a 500 caused by a SQL integrity constraint violation — Symfony validation catches it first
+
 ### Requirement: Subtype-Specific Validation
 
 A `ProductRelatedQRCode` SHALL have a non-null `product` reference. A `TargetUrlQRCode` SHALL have a non-blank `targetUrl` that passes URL validation and is no longer than 2048 characters.

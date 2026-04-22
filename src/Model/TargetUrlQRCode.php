@@ -8,6 +8,11 @@ class TargetUrlQRCode extends QRCode implements TargetUrlQRCodeInterface
 {
     protected ?string $targetUrl = null;
 
+    public function getType(): string
+    {
+        return self::TYPE_TARGET_URL;
+    }
+
     public function getTargetUrl(): ?string
     {
         return $this->targetUrl;

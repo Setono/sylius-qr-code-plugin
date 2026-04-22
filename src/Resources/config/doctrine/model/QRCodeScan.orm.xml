@@ -17,7 +17,7 @@
         <field name="ipAddress" type="string" length="45" column="ip_address"/>
         <field name="userAgent" type="string" length="512" column="user_agent"/>
 
-        <many-to-one field="qrCode" target-entity="Setono\SyliusQRCodePlugin\Model\QRCodeInterface" inversed-by="scans">
+        <many-to-one field="qrCode" target-entity="Setono\SyliusQRCodePlugin\Model\QRCode" inversed-by="scans">
             <join-column name="qr_code_id" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
         </many-to-one>
     </mapped-superclass>

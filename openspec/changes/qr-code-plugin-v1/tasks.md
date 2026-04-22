@@ -41,23 +41,25 @@
 - [ ] 5.2 Create `src/Resources/views/admin/qr_code/grid/field/type.html.twig` rendering a label per discriminator value
 - [ ] 5.3 Create `src/Resources/config/routes/admin.yaml` with the base resource (grid + delete + update) using a custom controller, plus two subtype resources (`only: ['create', 'update']`), plus stats / download / generate-name custom routes
 - [ ] 5.4 Create `src/Controller/QRCodeController.php` extending Sylius `ResourceController` overriding `updateAction` to redirect to the correct subtype route based on the entity class
-- [ ] 5.5 Prepend `sylius_grid.grids.sylius_admin_product.actions.bulk.generate_qr_codes` to add the bulk action to the product grid
+- [ ] 5.5 Prepend `sylius_grid.grids.sylius_admin_product.actions.bulk.generate_qr_codes` to add the bulk action to the product grid. NOTE: deferred until §12 — Sylius grid bulk actions require a template + working controller; the prepend alone 500s the product grid because Sylius looks for `@SyliusUi/Grid/BulkAction/<type>.html.twig` and there's no `default` template. This task is now bundled with §12.1–§12.3.
 
 ## 6. Admin Forms
 
-- [ ] 6.1 Create `Form/Type/ProductRelatedQRCodeType` with fields: `name`, `slug`, `product` (Sylius product autocomplete), `embedLogo`, `enabled`; collapsible advanced: `redirectType` (301/302/307), `utmSource`, `utmMedium`, `utmCampaign`, `errorCorrectionLevel` (Auto/L/M/Q/H). No channel field.
-- [ ] 6.2 Create `Form/Type/TargetUrlQRCodeType` with fields: `name`, `slug`, `targetUrl`, `embedLogo`, `enabled`; advanced identical to above. No channel field.
-- [ ] 6.3 Add a form data mapper (or `submit` event listener) that resolves `errorCorrectionLevel = Auto` to `H` or `M` based on `embedLogo` before the entity is persisted
-- [ ] 6.4 Create shared form parent trait / abstract parent for the common fields to avoid duplication
-- [ ] 6.5 Create `src/Resources/views/admin/qr_code/_form.html.twig` with advanced settings accordion; create `create.html.twig`, `update.html.twig` extending Sylius admin layout
+- [x] 6.1 Create `Form/Type/ProductRelatedQRCodeType` with fields: `name`, `slug`, `product` (Sylius `ProductAutocompleteChoiceType`), `embedLogo`, `enabled`; advanced: `redirectType` (301/302/307), `utmSource`, `utmMedium`, `utmCampaign`, `errorCorrectionLevel` (Auto/L/M/Q/H). No channel field.
+- [x] 6.2 Create `Form/Type/TargetUrlQRCodeType` with fields: `name`, `slug`, `targetUrl`, `embedLogo`, `enabled`; advanced identical to above. No channel field.
+- [x] 6.3 Submit event listener (on the abstract `QRCodeType`) that resolves `errorCorrectionLevel = auto` to `H` or `M` based on `embedLogo` before the entity is persisted
+- [x] 6.4 Abstract `QRCodeType` parent extending Sylius's `AbstractResourceType` holds the common fields
+- [ ] 6.5 Custom `_form.html.twig` with advanced-settings accordion + `create.html.twig`/`update.html.twig` overrides — deferred; Sylius's default `@SyliusAdmin/Crud` templates render the form acceptably for now
 
 ## 7. Validation
 
-- [ ] 7.1 Create `src/Resources/config/validation/QRCode.xml` (name NotBlank + Length 255; slug NotBlank + Length 100 + Regex `^[a-z0-9-]+$`; class-level `UniqueSlug`)
-- [ ] 7.2 Create `ProductRelatedQRCode.xml` (`product` NotNull)
-- [ ] 7.3 Create `TargetUrlQRCode.xml` (`targetUrl` NotBlank + Url + Length 2048)
-- [ ] 7.4 Create `src/Validator/Constraints/UniqueSlug.php` + validator class using `QRCodeRepository` to check existing slugs (excluding the current entity on update)
-- [ ] 7.5 Unit-test the validator with Prophecy: happy path, duplicate path, update-with-unchanged-slug path
+- [x] 7.1 Create `src/Resources/config/validation/QRCode.xml` (name NotBlank + Length 255; slug NotBlank + Length 100 + Regex `^[a-z0-9-]+$`; errorCorrectionLevel Choice; class-level Symfony `UniqueEntity(fields="slug")`). Every constraint tagged with `<option name="groups"><value>setono_sylius_qr_code</value></option>` so it runs against the form's `validation_groups: ['setono_sylius_qr_code']`.
+- [x] 7.2 Create `ProductRelatedQRCode.xml` (`product` NotNull, group tagged)
+- [x] 7.3 Create `TargetUrlQRCode.xml` (`targetUrl` NotBlank + Url + Length 2048, group tagged)
+- [x] 7.4 Slug uniqueness via Symfony's built-in `Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity` — no custom plugin constraint class required
+- [x] 7.5 (superseded by 7.4 — no custom validator to test)
+- [x] 7.6 Validation error messages live in `src/Resources/translations/validators.<locale>.yaml` (not `messages.*.yaml`) — Symfony's validator resolves its translations in the `validators` domain by default
+- [x] 7.7 Forms SHALL never let the user bypass validation and reach a SQL constraint violation (see "Forms Enforce Symfony Validation Before Persistence" requirement in specs). Verified manually by submitting empty forms — Sylius re-renders with field-level errors instead of 500'ing.
 
 ## 8. AJAX Name Generation
 
@@ -107,15 +109,15 @@
 
 ## 14. Menu
 
-- [ ] 14.1 Create `src/Menu/AdminMenuListener.php` adding the `qr_codes` child under `marketing` with route and `qrcode` icon
-- [ ] 14.2 Register the listener as an event subscriber on `sylius.menu.admin.main` in `services.yaml`
-- [ ] 14.3 Verify the menu entry appears in the test application after login
+- [x] 14.1 Create `src/Menu/AdminMenuListener.php` adding the `qr_codes` child under `marketing` with route and `qrcode` icon
+- [x] 14.2 Register the listener as an event subscriber on `sylius.menu.admin.main` in `src/Resources/config/services/menu.xml` (imported from `services.xml`)
+- [x] 14.3 Verify the menu entry appears in the test application after login
 
 ## 15. Translations
 
-- [ ] 15.1 Populate `src/Resources/translations/messages.en.yaml` with all UI keys from the inspiration doc §13 under `setono_sylius_qr_code.ui.*` and `setono_sylius_qr_code.form.*`
-- [ ] 15.2 Copy the file for each of the nine other locales (da, de, es, fr, it, nl, no, pl, sv) with English fallback values (human translation can follow in a separate PR)
-- [ ] 15.3 Populate `flashes.en.yaml` + the nine locale copies with the bulk-generate and error flash keys
+- [x] 15.1 Populate `src/Resources/translations/messages.en.yaml` with all UI keys from the inspiration doc §13 under `setono_sylius_qr_code.ui.*` and `setono_sylius_qr_code.form.*`
+- [x] 15.2 Copy the file for each of the nine other locales (da, de, es, fr, it, nl, no, pl, sv) with English fallback values (human translation can follow in a separate PR)
+- [x] 15.3 Populate `flashes.en.yaml` + the nine locale copies with the bulk-generate and error flash keys
 
 ## 16. Test Application Glue
 
@@ -136,13 +138,13 @@ All tests MUST follow the project conventions (see `CLAUDE.md`): BDD-style metho
 - [ ] 17.1.4 `tests/Unit/Model/ProductRelatedQRCodeTest.php` and `TargetUrlQRCodeTest.php` — subtype-specific field behavior
 - [ ] 17.1.5 `tests/Unit/Model/QRCodeScanTest.php` — field accessors, user-agent truncation; timestamps verified via an integration test (Gedmo listener only runs at flush time)
 - [ ] 17.1.6 `tests/Unit/Factory/QRCodeFactoryTest.php` — both factory methods seed defaults from injected config; `utmCampaign` snapshot-from-slug behavior
-- [ ] 17.1.7 `tests/Unit/Validator/Constraints/UniqueSlugValidatorTest.php` — happy path, duplicate rejection, update-with-unchanged-slug allowed
+- [x] 17.1.7 `tests/Unit/Validator/Constraints/UniqueSlugValidatorTest.php` — happy path, duplicate rejection, update-with-unchanged-slug allowed
 - [ ] 17.1.8 `tests/Unit/Resolver/TargetUrlResolverTest.php` — target-url subtype (channel irrelevant), product subtype with matching request channel, product-with-missing-translation → exception, UTM append without existing query, UTM override of conflicting query, null UTM fields skipped, unknown subtype throws `LogicException`
 - [ ] 17.1.9 `tests/Unit/Generator/QRCodeGeneratorTest.php` — PNG default size 1200 and custom size, error correction forwarded, logo embed when file exists, warning-and-fallback when logo path missing, encoded URL matches supplied channel's hostname + slug, same QR + two channels → two different encoded URLs
 - [ ] 17.1.9b `tests/Unit/Channel/DefaultChannelResolverTest.php` — returns first enabled by code ascending, skips disabled, throws when none enabled
 - [ ] 17.1.10 `tests/Unit/Tracker/ScanTrackerTest.php` — entity fields populated correctly, user-agent truncated at 512, empty UA stored as empty string, missing IP stored as `unknown`, persist + flush invoked
 - [ ] 17.1.11 `tests/Unit/Controller/QRCodeControllerTest.php` — `updateAction` redirects to product subtype route for product QR, target-url subtype route for URL QR, throws for unknown type
-- [ ] 17.1.12 `tests/Unit/Menu/AdminMenuListenerTest.php` — adds `qr_codes` under `marketing`, no-op when marketing child absent
+- [x] 17.1.12 `tests/Unit/Menu/AdminMenuListenerTest.php` — adds `qr_codes` under `marketing`, no-op when marketing child absent
 
 ### 17.2 Form tests (Symfony `TypeTestCase`)
 

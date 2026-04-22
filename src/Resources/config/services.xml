@@ -35,7 +35,9 @@
     -->
 
     <imports>
+        <import resource="services/event_listener.xml"/>
         <import resource="services/factory.xml"/>
+        <import resource="services/form.xml"/>
     </imports>
 
     <services/>

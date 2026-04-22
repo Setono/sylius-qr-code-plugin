@@ -85,6 +85,7 @@ When a resource needs a custom factory (to seed defaults, derive a slug, snapsho
 - **Why:** Respects whatever factory class the adopting app may have customized via `classes.factory`, preserves the Sylius resource-ID contract, and keeps the entity construction path consistent across plain creates and decorated creates. Directly `new`ing entities bypasses all of that.
 
 ### Doctrine Entity Conventions
+- **Plugin-side Doctrine mappings are always `<mapped-superclass>`.** Never `<entity>`. Sylius's Resource Bundle rewrites the mapping to `<entity>` at runtime based on the `classes.model` declared in the resource config. Shipping `<entity>` in the plugin breaks the app's ability to override the model via `sylius_resource.resources.*.classes.model` — which is the primary customisation seam apps rely on. This applies to every plugin entity, including STI subtypes (`ProductRelatedQRCode`, `TargetUrlQRCode`, etc.): each stays a `<mapped-superclass>` on the plugin side; the app-level entities extend them and declare STI (`InheritanceType`, `DiscriminatorColumn`, `DiscriminatorMap`) against the app-level class hierarchy.
 - **Nullable property + nullable getter when no sensible default exists.** If a property does not have a sensible literal default (e.g. `false`, `0`, a meaningful enum), declare it `?Type $x = null` and type the getter `?Type`. Do NOT reach for empty-string/placeholder sentinels (`''`, `'unknown'`, `new \DateTimeImmutable()`) just to satisfy a non-nullable type. Example: `protected string $userAgent = '';` → `protected ?string $userAgent = null;` with `getUserAgent(): ?string`.
 - **No constructor logic to set defaults.** Doctrine entities should not initialize scalar fields (timestamps, strings, numbers) in the constructor — keep them nullable instead. Collection fields that must never be null (e.g. `ArrayCollection`) are the pragmatic exception.
 - **No service injection in entity constructors.** It's a Symfony pattern that Doctrine entities don't take collaborators — state lives on them, behavior lives in services.
@@ -156,11 +157,43 @@ PHPStan is configured in `phpstan.neon` with:
 - **Baseline**: Generate with `composer analyse -- --generate-baseline` to track improvements
 
 ### Test Application
-The plugin includes a test Symfony application in `tests/Application/` for development and testing:
-- Navigate to `tests/Application/` directory
-- Run `yarn install && yarn build` to build assets
-- Use standard Symfony commands for the test app
-- **Sylius Backend Credentials**: Username: `sylius`, Password: `sylius`
+The plugin includes a test Symfony application at `tests/Application/` for development and manual browser testing. **Sylius Backend credentials after fixtures load:** `sylius` / `sylius`.
+
+**First-time setup** (run from the project root; never `cd` into subdirectories per Path Conventions):
+
+```bash
+# 1. MySQL must be running on 127.0.0.1 with root user and no password (see DATABASE_URL in
+#    tests/Application/.env — database name is setono_sylius_qr_code_plugin_{env}).
+# 2. Create the database and schema for the dev environment.
+tests/Application/bin/console --env=dev doctrine:database:create --if-not-exists
+tests/Application/bin/console --env=dev doctrine:schema:create
+
+# 3. Load Sylius default fixtures (admin user, products, channels, etc.).
+tests/Application/bin/console --env=dev sylius:fixtures:load default --no-interaction
+
+# 4. Symlink bundle assets into tests/Application/public/bundles/.
+tests/Application/bin/console --env=dev assets:install tests/Application/public --symlink --relative
+
+# 5. Install and build the front-end bundle (Webpack Encore). Use `yarn --cwd` to stay out of
+#    the subdirectory.
+yarn --cwd tests/Application install
+yarn --cwd tests/Application build
+
+# 6. Start the web server. Either of these works; both run from the project root:
+#    Symfony CLI (preferred): `symfony server:start --dir=tests/Application`
+#    Built-in Symfony console: `tests/Application/bin/console --env=dev server:run`
+```
+
+**Reset the app from scratch** (useful after ORM/schema changes during development):
+
+```bash
+tests/Application/bin/console --env=dev doctrine:schema:drop --force --full-database
+tests/Application/bin/console --env=dev doctrine:schema:create
+tests/Application/bin/console --env=dev sylius:fixtures:load default --no-interaction
+```
+
+**Admin URL**: `http://localhost:8000/admin/` (or whatever port `symfony server:start` reports).
+**QR Code admin grid**: `http://localhost:8000/admin/qr-codes/`.
 
 ## Bash Tools Recommendations
 
