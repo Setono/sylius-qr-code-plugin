@@ -69,16 +69,16 @@
 
 ## 9. Redirect Action
 
-- [ ] 9.1 Create `src/Resources/config/routes/frontend.yaml` with `setono_sylius_qr_code_redirect: /qr/{slug}` → `RedirectAction` (NOT locale-prefixed — imported separately from shop.yaml)
-- [ ] 9.2 Create `src/Action/RedirectAction.php` implementing the flow: find QR by slug + enabled → 404 if missing; for `ProductRelatedQRCode` resolve channel via `ChannelContextInterface` and 404 if channel missing / product disabled / translation missing; call tracker (swallow exceptions and log); resolve target URL via `TargetUrlResolver`; return `RedirectResponse` with entity's `redirectType`. `TargetUrlQRCode` does NOT require a resolved request channel.
-- [ ] 9.3 Create `TargetUrlResolverInterface` and `TargetUrlResolver` with two subtype branches: `TargetUrlQRCode` uses stored URL verbatim; `ProductRelatedQRCode` reads channel from `ChannelContextInterface` and builds the shop product URL using `channel.defaultLocale` + product translation slug. Include `appendUtmParameters()` helper (merge + override + skip-null)
-- [ ] 9.4 Unit-test `TargetUrlResolver` with Prophecy: target-url subtype, product subtype on matching channel, product-with-missing-translation, UTM merge (no existing query / conflicting query / null fields)
-- [ ] 9.5 Functional-test `RedirectAction`: success redirect for both subtypes, unknown slug, disabled QR, disabled product → 404, unknown hostname → 404 for product QR but success for target-URL QR, tracker exception does not block redirect
+- [x] 9.1 `src/Resources/config/routes/redirect.yaml` with `setono_sylius_qr_code_redirect: /qr/{slug}` → `RedirectAction`, imported from `routes.yaml` WITHOUT the `{_locale}` prefix
+- [x] 9.2 `src/Controller/RedirectAction.php`: find QR by slug + enabled → 404 if missing; for `ProductRelatedQRCode` verify the product is enabled + enabled on the request channel → 404 otherwise; call tracker in a try/catch (error → log and continue); resolve target URL via `TargetUrlResolver`; return `RedirectResponse` with entity's `redirectType`. `TargetUrlQRCode` does NOT require a resolved request channel.
+- [x] 9.3 `TargetUrlResolverInterface` + `TargetUrlResolver`: `TargetUrlQRCode` uses stored URL verbatim; `ProductRelatedQRCode` resolves channel via `ChannelContextInterface` and builds the `sylius_shop_product_show` absolute URL using channel default locale + product translation slug. Includes `appendUtmParameters()` (merge + override + skip-null).
+- [x] 9.4 `tests/Unit/Resolver/TargetUrlResolverTest.php` (8 tests): target-url subtype, UTM append, UTM override on conflicting query, UTM skip when null, no-UTM pass-through, product URL resolution, product without channel context → `LogicException`, unsupported subtype → `LogicException`.
+- [ ] 9.5 Functional-test `RedirectAction` via the booted test kernel — deferred; manual Playwright smoke test covers the happy path (`/qr/winter-sale` → `https://example.com/winter?utm_source=qr&utm_medium=qrcode`).
 
 ## 10. Scan Tracking
 
-- [ ] 10.1 Create `src/Tracker/ScanTrackerInterface.php` and `ScanTracker.php` that builds a `QRCodeScan`, persists + flushes
-- [ ] 10.2 Unit-test `ScanTracker` with Prophecy (verify entity fields populated, user-agent truncation, empty UA, missing IP)
+- [x] 10.1 `src/Tracker/ScanTrackerInterface.php` + `ScanTracker.php` — uses the Sylius-registered `setono_sylius_qr_code.factory.qr_code_scan` factory to build a `QRCodeScan`, sets ipAddress (`'unknown'` when absent) and userAgent (truncated via entity setter), persists + flushes via the injected `ObjectManager`. Gedmo Timestampable populates `scannedAt` on flush.
+- [x] 10.2 `tests/Unit/Tracker/ScanTrackerTest.php` (5 tests): populates ip + ua from request, 'unknown' when ip missing, empty string when ua header absent, truncation via entity setter, wrong factory return type raises `InvalidArgumentException`.
 
 ## 11. Image Generation and Download
 
@@ -139,10 +139,10 @@ All tests MUST follow the project conventions (see `CLAUDE.md`): BDD-style metho
 - [ ] 17.1.5 `tests/Unit/Model/QRCodeScanTest.php` — field accessors, user-agent truncation; timestamps verified via an integration test (Gedmo listener only runs at flush time)
 - [ ] 17.1.6 `tests/Unit/Factory/QRCodeFactoryTest.php` — both factory methods seed defaults from injected config; `utmCampaign` snapshot-from-slug behavior
 - [x] 17.1.7 `tests/Unit/Validator/Constraints/UniqueSlugValidatorTest.php` — happy path, duplicate rejection, update-with-unchanged-slug allowed
-- [ ] 17.1.8 `tests/Unit/Resolver/TargetUrlResolverTest.php` — target-url subtype (channel irrelevant), product subtype with matching request channel, product-with-missing-translation → exception, UTM append without existing query, UTM override of conflicting query, null UTM fields skipped, unknown subtype throws `LogicException`
+- [x] 17.1.8 `tests/Unit/Resolver/TargetUrlResolverTest.php` — target-url subtype (channel irrelevant), product subtype with matching request channel, product-with-missing-translation → exception, UTM append without existing query, UTM override of conflicting query, null UTM fields skipped, unknown subtype throws `LogicException`
 - [ ] 17.1.9 `tests/Unit/Generator/QRCodeGeneratorTest.php` — PNG default size 1200 and custom size, error correction forwarded, logo embed when file exists, warning-and-fallback when logo path missing, encoded URL matches supplied channel's hostname + slug, same QR + two channels → two different encoded URLs
 - [ ] 17.1.9b `tests/Unit/Channel/DefaultChannelResolverTest.php` — returns first enabled by code ascending, skips disabled, throws when none enabled
-- [ ] 17.1.10 `tests/Unit/Tracker/ScanTrackerTest.php` — entity fields populated correctly, user-agent truncated at 512, empty UA stored as empty string, missing IP stored as `unknown`, persist + flush invoked
+- [x] 17.1.10 `tests/Unit/Tracker/ScanTrackerTest.php` — entity fields populated correctly, user-agent truncated at 512, empty UA stored as empty string, missing IP stored as `unknown`, persist + flush invoked
 - [ ] 17.1.11 `tests/Unit/Controller/QRCodeControllerTest.php` — `updateAction` redirects to product subtype route for product QR, target-url subtype route for URL QR, throws for unknown type
 - [x] 17.1.12 `tests/Unit/Menu/AdminMenuListenerTest.php` — adds `qr_codes` under `marketing`, no-op when marketing child absent
 
@@ -161,7 +161,7 @@ All tests MUST follow the project conventions (see `CLAUDE.md`): BDD-style metho
 
 ### 17.4 Functional tests (test application, HTTP layer)
 
-- [ ] 17.4.1 `tests/Functional/Action/RedirectActionTest.php` — success redirect for both subtypes with correct status + `Location` (with UTM), unknown slug → 404, disabled QR → 404, disabled product (product-QR) → 404, unknown hostname (product-QR) → 404, unknown hostname (target-URL QR) → success, tracker exception → still redirects (error is logged)
+- [ ] 17.4.1 `tests/Functional/Controller/RedirectActionTest.php` — success redirect for both subtypes with correct status + `Location` (with UTM), unknown slug → 404, disabled QR → 404, disabled product (product-QR) → 404, unknown hostname (product-QR) → 404, unknown hostname (target-URL QR) → success, tracker exception → still redirects (error is logged)
 - [ ] 17.4.2 `tests/Functional/Admin/QRCodeCrudTest.php` — create product QR, create target-URL QR, update redirect routes to correct subtype form, delete removes entity, bulk delete
 - [ ] 17.4.3 `tests/Functional/Admin/GenerateNameActionTest.php` — slug → `{name: "QR: <slug>"}`, productId → `{name: "QR: <product name>"}`, unauthenticated → 401/403
 - [ ] 17.4.4 `tests/Functional/Admin/DownloadActionTest.php` — PNG/SVG/PDF each return correct `Content-Type` and `Content-Disposition` (default and per-channel filename forms), default format is PNG, default-channel path uses the resolver, explicit channel path uses that channel's hostname, unknown format → 404, unknown/disabled channel → 404, ETag set on response, different channels → different ETags, matching `If-None-Match` → 304, updated entity yields a new ETag

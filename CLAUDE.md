@@ -41,7 +41,7 @@ Follow clean code principles and SOLID design patterns when working with this co
   For a Sylius factory decorator the alias points at the **Sylius-registered ID**, because decoration replaces the service at that ID — see "Sylius Factory Decoration" below.
 - **Services are private by default** (Symfony 5.4+ default). Mark `public="true"` only when the service must be fetched from the container directly (e.g. controllers invoked as services, console command tags, actions referenced by a router `controller` attribute).
 - **Inside the test application (`tests/Application/`)**, autowire/autoconfigure are fine — that's a typical Symfony app, not a reusable bundle.
-- **Always declare `decoration-priority` explicitly on any `decorates` service.** Never rely on Symfony's implicit default. Higher priority = outer decorator (called first). Plugin decorators use `decoration-priority="0"` (neutral) unless there's a specific reason to claim the outer or inner position; that way adopting apps can layer their own decorators above (positive) or below (negative). Explicit priority also prevents surprises when multiple decorators collide later — intent is visible in the XML.
+- **Always declare `decoration-priority` explicitly on any `decorates` service, and use a positive number (default: `100`).** Never rely on Symfony's implicit default. Higher priority = outer decorator (called first). Plugin decorators default to `decoration-priority="100"` so adopting apps that declare their own decorator at the implicit `0` priority automatically slot *inside* our decorator — the plugin's post-processing still runs on top, and the app doesn't have to know about ours to extend the chain. Explicit priority also prevents surprises when multiple decorators collide later.
 
 ### Sylius Factory Decoration
 When a resource needs a custom factory (to seed defaults, derive a slug, snapshot a value at create time, etc.), **always decorate the Sylius-generated factory** rather than instantiating the entity directly.
@@ -68,13 +68,13 @@ When a resource needs a custom factory (to seed defaults, derive a slug, snapsho
 - Register the decorator in `services/factory.xml` using Symfony's `decorates` attribute:
   - **Service ID**: the decorator's FQCN (per "Service Definitions in Plugins" above — no exceptions).
   - **`decorates`**: the Sylius-registered factory ID `{plugin_alias}.factory.{resource_name}`.
-  - **`decoration-priority`**: explicit value (never implicit). Use `"0"` for plugin factories unless there's a reason to claim outer/inner.
+  - **`decoration-priority`**: explicit value (never implicit). Use `"100"` for plugin factories — see "Service Definitions in Plugins" above.
   - **Inner service reference**: the expanded form `{FQCN}.inner` (not the shorthand `.inner`), so the wiring stays explicit and grep-able.
   - **Interface alias**: points at the Sylius-registered ID (not at our decorator's FQCN) — decoration replaces the service at that ID, so consumers asking for the interface get the decorator transparently.
   ```xml
   <service id="My\Plugin\Factory\WidgetFactory"
            decorates="my_plugin.factory.widget"
-           decoration-priority="0">
+           decoration-priority="100">
       <argument type="service" id="My\Plugin\Factory\WidgetFactory.inner"/>
       <argument type="service" id="..."/>
   </service>
@@ -91,6 +91,13 @@ When a resource needs a custom factory (to seed defaults, derive a slug, snapsho
 - **No service injection in entity constructors.** It's a Symfony pattern that Doctrine entities don't take collaborators — state lives on them, behavior lives in services.
 - **Use Gedmo Timestampable for `createdAt` / `updatedAt`.** Never set these in the constructor or in a lifecycle callback by hand. Declare the ORM mapping field with `<gedmo:timestampable on="create"/>` (for `createdAt`/`scannedAt`-style fields) or `<gedmo:timestampable on="update"/>` (for `updatedAt`). Enable the listener once via `stof_doctrine_extensions.orm.default.timestampable: true` (the test app already does this). Gedmo populates the field at flush time; the PHP property stays nullable before persistence. This is the standard Sylius pattern — `stof/doctrine-extensions-bundle` is already registered in the test application.
 - Database-level NOT NULL constraints are independent of this — the property can be nullable in PHP while the column is `nullable="false"` in the ORM mapping. The caller (factory, controller, listener, or Gedmo listener) is responsible for populating before flush.
+- **Don't inject `EntityManagerInterface` (or `ObjectManager`) into services.** Inject the `ManagerRegistry` instead, via `setono/doctrine-orm-trait`'s `ORMTrait`. The trait gives you `getManager($entityOrClass)` / `getRepository($entityOrClass)` and picks the right manager per entity — important once the adopting app has multiple entity managers. Rationale: <https://matthiasnoback.nl/2014/05/inject-the-manager-registry-instead-of-the-entity-manager/>. Register the service with `doctrine` as the registry argument:
+  ```xml
+  <service id="My\Plugin\Tracker\Foo">
+      <argument type="service" id="..."/>
+      <argument type="service" id="doctrine"/>
+  </service>
+  ```
 
 ### Assertions
 - **Never use PHP's native `assert()` function.** It's bypassable (disabled when `zend.assertions=-1`) and throws `\AssertionError`, which conflates programmer errors with runtime guards.
@@ -194,6 +201,10 @@ tests/Application/bin/console --env=dev sylius:fixtures:load default --no-intera
 
 **Admin URL**: `http://localhost:8000/admin/` (or whatever port `symfony server:start` reports).
 **QR Code admin grid**: `http://localhost:8000/admin/qr-codes/`.
+
+### Route File Dispatchers
+- **Every file under `src/Resources/config/routes/` must be imported in BOTH `src/Resources/config/routes.yaml` AND `src/Resources/config/routes_no_locale.yaml`.** The two files are parallel dispatchers — `routes.yaml` is used when the host app uses localized URLs (`/{_locale}/...`), `routes_no_locale.yaml` when it doesn't. Forgetting to add an import to `routes_no_locale.yaml` means the route silently vanishes for non-localized stores. Admin and global (non-locale-prefixed) routes appear identically in both; only shop routes differ (the localized dispatcher wraps them in the `/{_locale}` prefix).
+- **After changing routes or service wiring, verify the booted kernel sees the change:** `rm -rf tests/Application/var/cache/ && tests/Application/bin/console --env=dev cache:warmup`, then `tests/Application/bin/console --env=dev debug:router | rg <route-name>` to confirm registration. Stale dev cache is the most common reason a "correct-looking" route appears missing.
 
 ## Bash Tools Recommendations
 

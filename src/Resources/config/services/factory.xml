@@ -10,14 +10,15 @@
         Service IDs are the decorator FQCN per CLAUDE.md "Service Definitions in Plugins";
         the decorated Sylius ID is only referenced via the `decorates` attribute and the
         interface alias (consumers asking for {app}.factory.{name} or the plugin interface
-        transparently get our decorator). `decoration-priority` is set explicitly per
-        CLAUDE.md — 0 (neutral) lets consumer apps decorate above (positive) or below (negative).
+        transparently get our decorator). `decoration-priority` is set explicitly to 100 per
+        CLAUDE.md — positive so that adopting apps decorating at the default priority (0) slot
+        inside ours automatically (no need for them to know about the plugin's decoration).
         See CLAUDE.md "Sylius Factory Decoration" for the full pattern.
     -->
     <services>
         <service id="Setono\SyliusQRCodePlugin\Factory\ProductRelatedQRCodeFactory"
                  decorates="setono_sylius_qr_code.factory.product_related_qr_code"
-                 decoration-priority="0">
+                 decoration-priority="100">
             <argument type="service" id="Setono\SyliusQRCodePlugin\Factory\ProductRelatedQRCodeFactory.inner"/>
             <argument>%setono_sylius_qr_code.redirect_type%</argument>
             <argument>%setono_sylius_qr_code.utm.source%</argument>
@@ -29,7 +30,7 @@
 
         <service id="Setono\SyliusQRCodePlugin\Factory\TargetUrlQRCodeFactory"
                  decorates="setono_sylius_qr_code.factory.target_url_qr_code"
-                 decoration-priority="0">
+                 decoration-priority="100">
             <argument type="service" id="Setono\SyliusQRCodePlugin\Factory\TargetUrlQRCodeFactory.inner"/>
             <argument>%setono_sylius_qr_code.redirect_type%</argument>
             <argument>%setono_sylius_qr_code.utm.source%</argument>
@@ -38,5 +39,14 @@
 
         <service id="Setono\SyliusQRCodePlugin\Factory\TargetUrlQRCodeFactoryInterface"
                  alias="setono_sylius_qr_code.factory.target_url_qr_code"/>
+
+        <service id="Setono\SyliusQRCodePlugin\Factory\QRCodeScanFactory"
+                 decorates="setono_sylius_qr_code.factory.qr_code_scan"
+                 decoration-priority="100">
+            <argument type="service" id="Setono\SyliusQRCodePlugin\Factory\QRCodeScanFactory.inner"/>
+        </service>
+
+        <service id="Setono\SyliusQRCodePlugin\Factory\QRCodeScanFactoryInterface"
+                 alias="setono_sylius_qr_code.factory.qr_code_scan"/>
     </services>
 </container>

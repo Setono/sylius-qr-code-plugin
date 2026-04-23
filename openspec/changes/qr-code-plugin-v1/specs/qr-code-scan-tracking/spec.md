@@ -28,10 +28,10 @@ Each `QRCodeScan` record SHALL capture: a reference to the QR code, `scannedAt` 
 - **WHEN** a request has a `User-Agent` header longer than 512 characters
 - **THEN** the persisted `userAgent` is the first 512 characters
 
-#### Scenario: Missing user agent stores empty string
+#### Scenario: Missing user agent stores "unknown"
 
 - **WHEN** a request has no `User-Agent` header
-- **THEN** the persisted `userAgent` is an empty string
+- **THEN** the persisted `userAgent` is the string `unknown`
 
 #### Scenario: Missing client IP stores "unknown"
 

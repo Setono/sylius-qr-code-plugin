@@ -4,6 +4,11 @@ setono_sylius_qr_code_shop:
     requirements:
         _locale: ^[A-Za-z]{2,4}(_([A-Za-z]{4}|[0-9]{3}))?(_([A-Za-z]{2}|[0-9]{3}))?$
 
+# Global (non-localized, non-admin) routes. Houses the public /qr/{slug} redirect endpoint —
+# QR codes are printed on physical artifacts, so the URL must work regardless of locale.
+setono_sylius_qr_code_global:
+    resource: "@SetonoSyliusQRCodePlugin/Resources/config/routes/global.yaml"
+
 setono_sylius_qr_code_admin:
     resource: "@SetonoSyliusQRCodePlugin/Resources/config/routes/admin.yaml"
     prefix: /admin

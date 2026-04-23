@@ -1,0 +1,6 @@
+setono_sylius_qr_code_redirect:
+    path: /qr/{slug}
+    controller: Setono\SyliusQRCodePlugin\Controller\RedirectAction
+    methods: [GET]
+    requirements:
+        slug: '[a-z0-9-]+'

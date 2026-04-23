@@ -1,0 +1,51 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Setono\SyliusQRCodePlugin\Resolver;
+
+use League\Uri\Contracts\UriInterface;
+use League\Uri\Modifier;
+use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
+use Webmozart\Assert\Assert;
+
+/**
+ * Decorates the composite resolver (or any {@see TargetUrlResolverInterface}) and appends the
+ * entity's snapshotted UTM parameters (source / medium / campaign) to the resolved URL.
+ *
+ * Merging rules:
+ * - entity values override keys already present on the target URL,
+ * - null entity fields are skipped — no empty query parameter added.
+ */
+final class UtmTargetUrlResolver implements TargetUrlResolverInterface
+{
+    public function __construct(
+        private readonly TargetUrlResolverInterface $decoratedResolver,
+    ) {
+    }
+
+    public function supports(QRCodeInterface $qrCode): bool
+    {
+        return $this->decoratedResolver->supports($qrCode);
+    }
+
+    public function resolve(QRCodeInterface $qrCode): UriInterface
+    {
+        $uri = $this->decoratedResolver->resolve($qrCode);
+
+        $utm = array_filter([
+            'utm_source' => $qrCode->getUtmSource(),
+            'utm_medium' => $qrCode->getUtmMedium(),
+            'utm_campaign' => $qrCode->getUtmCampaign(),
+        ], static fn (?string $v): bool => null !== $v);
+
+        if ([] === $utm) {
+            return $uri;
+        }
+
+        $uri = Modifier::wrap($uri)->mergeQueryParameters($utm)->unwrap();
+        Assert::isInstanceOf($uri, UriInterface::class);
+
+        return $uri;
+    }
+}
