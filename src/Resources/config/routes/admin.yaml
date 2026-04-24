@@ -17,6 +17,24 @@ setono_sylius_qr_code_admin_qr_code:
         except: ['create', 'show']
     type: sylius.resource
 
+# The Sylius `@SyliusAdmin\Crud` template namespace does not ship a `show.html.twig`, so we
+# can't rely on auto-registering `show` under the resource config (it would 500 looking for
+# the missing template). Instead, keep `show` in the resource's `except:` list and declare it
+# manually here, explicitly pointing _sylius.template at the plugin's template. Adopting apps
+# can override by providing their own `@SetonoSyliusQRCodePlugin/admin/qr_code/show.html.twig`.
+setono_sylius_qr_code_admin_qr_code_show:
+    path: /qr-codes/{id}
+    methods: [GET]
+    defaults:
+        _controller: setono_sylius_qr_code.controller.qr_code::showAction
+        _sylius:
+            section: admin
+            template: "@SetonoSyliusQRCodePlugin/admin/qr_code/show.html.twig"
+            vars:
+                subheader: setono_sylius_qr_code.ui.manage_qr_codes
+    requirements:
+        id: '\d+'
+
 setono_sylius_qr_code_admin_product_related_qr_code:
     resource: |
         alias: setono_sylius_qr_code.product_related_qr_code

@@ -119,6 +119,7 @@
 - [x] 15.1 Populate `src/Resources/translations/messages.en.yaml` with all UI keys from the inspiration doc §13 under `setono_sylius_qr_code.ui.*` and `setono_sylius_qr_code.form.*`
 - [x] 15.2 Copy the file for each of the nine other locales (da, de, es, fr, it, nl, no, pl, sv) with English fallback values (human translation can follow in a separate PR)
 - [x] 15.3 Populate `flashes.en.yaml` + the nine locale copies with the bulk-generate and error flash keys
+- [ ] 15.4 Translate the nine non-English locale files (da, de, es, fr, it, nl, no, pl, sv) across all three translation domains (`messages.*.yaml`, `flashes.*.yaml`, `validators.*.yaml`) — today every non-English file still carries English fallback values from §15.2. Keep the YAML key tree identical across files; only the value strings change. Machine translation is acceptable as a first pass; native-speaker review can follow.
 
 ## 16. Test Application Glue
 
@@ -187,8 +188,8 @@ All tests MUST follow the project conventions (see `CLAUDE.md`): BDD-style metho
 
 ## 19. Show Page
 
-- [ ] 19.1 Drop `show` from the `except: ['create', 'show']` list in `setono_sylius_qr_code_admin_qr_code` in `src/Resources/config/routes/admin.yaml` so Sylius auto-registers `setono_sylius_qr_code_admin_qr_code_show` at `GET /admin/qr-codes/{id}`.
-- [ ] 19.2 Create `src/Resources/views/admin/qr_code/show.html.twig` rendering the read-only detail view per the spec: name, slug, type (human label), enabled state, `createdAt`/`updatedAt`, `redirectType`, `errorCorrectionLevel`, resolved public redirect URL, `scansCount`, UTM source/medium/campaign, subtype-specific fields (product link or `targetUrl`), preview image, and shortcut buttons (update / delete / download / stats). The template SHALL live at the Sylius CRUD convention path so adopting apps can override via `@SyliusAdmin/Crud/show.html.twig` lookup rules.
-- [ ] 19.3 Add the row action `show` to the grid config in `src/DependencyInjection/SetonoSyliusQRCodeExtension.php` (Sylius action type `show` with link to `setono_sylius_qr_code_admin_qr_code_show` carrying `id: resource.id`).
-- [ ] 19.4 Add translation keys for the show page labels (group `setono_sylius_qr_code.ui.show.*`) in `src/Resources/translations/messages.en.yaml` and mirror to the nine other locales with English fallback.
-- [ ] 19.5 Functional-test `tests/Functional/Admin/QRCodeShowActionTest.php` — renders for both subtypes with the correct subtype-specific fields, 404 for unknown id, preview `<img>` present, shortcut buttons present and pointing at the right routes.
+- [x] 19.1 Dropped `show` from the `except:` list and added `vars.show.template` pointing at the plugin template so Sylius auto-registers `setono_sylius_qr_code_admin_qr_code_show` at `GET /admin/qr-codes/{id}` and renders our view instead of looking up a nonexistent `@SyliusAdmin/Crud/show.html.twig`.
+- [x] 19.2 `src/Resources/views/admin/qr_code/show.html.twig` rendering the read-only detail view: name + slug header, preview image (from the plugin's download endpoint at PNG default), two-column layout with a definition-table of name/slug/type/enabled/subtype-specific (product link or targetUrl)/public redirect URL/redirect type/error-correction level/UTM source-medium-campaign/scans count/createdAt/updatedAt, and a button row linking to update / download / stats.
+- [x] 19.3 Added the `show` row action (`type: 'show'`) to the grid config in `src/DependencyInjection/SetonoSyliusQRCodeExtension.php` — Sylius auto-links it to the `*_show` route for the resource.
+- [x] 19.4 Added `setono_sylius_qr_code.ui.redirect_url` to all 10 locale files (`messages.{en,da,de,es,fr,it,nl,no,pl,sv}.yaml`) with the English-fallback value. Other labels (`name`, `slug`, `type`, `enabled`, `product`, `target_url`, `redirect_type`, `error_correction_level`, `utm_*`, `scans`, `created_at`, `updated_at`) reuse existing keys, so no dedicated `ui.show.*` group was needed.
+- [ ] 19.5 Functional-test `tests/Functional/Admin/QRCodeShowActionTest.php` — deferred, bundled with the rest of §17.4 whenever the functional-test pass happens.

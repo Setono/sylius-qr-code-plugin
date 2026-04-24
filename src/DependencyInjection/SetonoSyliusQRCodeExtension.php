@@ -152,6 +152,9 @@ final class SetonoSyliusQRCodeExtension extends AbstractResourceExtension implem
                             ],
                         ],
                         'item' => [
+                            'show' => [
+                                'type' => 'show',
+                            ],
                             'stats' => [
                                 'type' => 'default',
                                 'label' => 'setono_sylius_qr_code.ui.see_stats',

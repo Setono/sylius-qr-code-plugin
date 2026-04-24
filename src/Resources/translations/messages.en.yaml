@@ -15,6 +15,7 @@ setono_sylius_qr_code:
         scans: Scans
         see_stats: See stats
         download: Download
+        redirect_url: Public redirect URL
         generate_qr_codes: Generate QR codes
         create_product_qr_code: Product QR code
         create_url_qr_code: URL QR code
