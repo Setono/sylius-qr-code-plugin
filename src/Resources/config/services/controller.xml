@@ -23,5 +23,11 @@
             <argument type="service" id="Setono\SyliusQRCodePlugin\Channel\DefaultChannelResolverInterface"/>
             <argument type="service" id="Setono\SyliusQRCodePlugin\Generator\QRCodeGeneratorInterface"/>
         </service>
+
+        <service id="Setono\SyliusQRCodePlugin\Controller\StatsAction" public="true">
+            <argument type="service" id="setono_sylius_qr_code.repository.qr_code"/>
+            <argument type="service" id="setono_sylius_qr_code.repository.qr_code_scan"/>
+            <argument type="service" id="twig"/>
+        </service>
     </services>
 </container>

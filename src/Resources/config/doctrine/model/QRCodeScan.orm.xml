@@ -6,6 +6,20 @@
                                       https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
 
     <mapped-superclass name="Setono\SyliusQRCodePlugin\Model\QRCodeScan" table="setono_sylius_qr_code__qr_code_scan">
+        <!--
+            Composite index on (qr_code_id, scanned_at) covers every per-QR query in
+            QRCodeScanRepository:
+              - countForQrCode / countForQrCodeSince (leading column match)
+              - countDailyBuckets (range on scanned_at inside a qr_code_id group)
+              - findRecentForQrCode (range + ORDER BY scanned_at DESC LIMIT, served from the
+                already-ordered index so no filesort)
+            This is the hot read path; scans are written once and read many times (grid
+            scansCount + stats page + redirect-latency-free tracking).
+        -->
+        <indexes>
+            <index name="setono_sylius_qr_code_scan_qr_code_scanned_at_idx" columns="qr_code_id,scanned_at"/>
+        </indexes>
+
         <id name="id" type="integer" column="id">
             <generator strategy="AUTO"/>
         </id>

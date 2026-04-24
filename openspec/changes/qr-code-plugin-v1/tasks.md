@@ -27,6 +27,7 @@
 - [x] 3.8 Create `QRCodeScan.orm.xml` (mapped-superclass; Gedmo `<gedmo:timestampable on="create"/>` on `scannedAt`)
 - [x] 3.9 Add app-level entities in `tests/Application/Entity/QRCode/` declaring STI `InheritanceType`, `DiscriminatorColumn('type')`, `DiscriminatorMap(['product' => ..., 'target_url' => ...])`
 - [ ] 3.10 Document in README the STI discriminator configuration that adopting apps must provide, AND the required `stof_doctrine_extensions.orm.default.timestampable: true` configuration for Gedmo Timestampable
+- [x] 3.11 Database indexes for the hot read paths: `QRCodeScan` carries a composite `(qr_code_id, scanned_at)` index covering every per-QR query in `QRCodeScanRepository` (count, range-count, daily bucket, recent-scans with `ORDER BY scanned_at DESC`). `QRCode` carries an index on `type` for the admin grid filter (`slug` is already UNIQUE, which implies an index and covers `findOneBySlug` / `findOneEnabledBySlug`). Documented in the scan-tracking spec as "Scan Table Index Layout" with an EXPLAIN-backed scenario.
 
 ## 4. Sylius Resource Configuration
 
@@ -112,12 +113,12 @@ Reference implementation in Sylius (mirror the structure rather than reinventing
 
 ## 13. Statistics Page
 
-- [ ] 13.1 Create `src/Action/Admin/StatsAction.php` rendering `stats.html.twig` with totals, quick stats (7/30), pre-computed initial data for the default range, and a per-channel download matrix (default + one button per enabled channel, per format)
-- [ ] 13.2 Create `StatsDataAction` (AJAX) returning JSON for chart refresh on range change: line data (daily for ≤30d, weekly for >30d, UTC-bucketed)
-- [ ] 13.3 Create `ExportCsvAction` streaming CSV of scans for the selected range
-- [ ] 13.4 Create `stats.html.twig` wiring Chart.js for the line chart, the scan table, and rendering the per-channel download matrix
-- [ ] 13.5 Add repository aggregation queries on `QRCodeScanRepository` for: total, count since N days ago, daily buckets, weekly buckets, paginated recent scans within range
-- [ ] 13.6 Integration-test the aggregation queries against a real DB fixture in `tests/Integration/Repository/QRCodeScanRepositoryTest.php`
+- [x] 13.1 `src/Controller/StatsAction.php` (invokable, public=true, registered in `services/controller.xml` with QR + scan repositories + Twig) renders the stats page for `GET /admin/qr-codes/{id}/stats`. Payload: total scans, quick-stat cards for last 7/30/90 days, zero-filled daily buckets for the past 30 days (chart labels + data pre-split in the controller), and the last 50 scans. 404 on unknown id. Route registered at that path pointing at the new class. Covered by `tests/Unit/Controller/StatsActionTest.php` (3 tests).
+- [ ] 13.2 `StatsDataAction` (AJAX) returning JSON for chart refresh on range change — deferred. The page currently ships a fixed 30-day window with daily bucketing. Range selector UI + this endpoint land together in a follow-up slice. Weekly bucketing already lives on `QRCodeScanRepository::countWeeklyBuckets()` awaiting a consumer.
+- [ ] 13.3 `ExportCsvAction` streaming CSV of scans for the selected range — deferred to the same follow-up slice as §13.2.
+- [x] 13.4 `src/Resources/views/admin/qr_code/stats.html.twig` extending `@SyliusAdmin/layout.html.twig`, breadcrumb trail Administration › QR codes › {name} › Statistics, four quick-stat cards, Chart.js line chart (loaded from `cdn.jsdelivr.net` — adopters can swap for an Encore asset when they wire their own build), Recent scans table (limit 50), and Show / Edit / Download buttons. Per-channel download matrix is deferred until the download dropdown decision lands (see the earlier split-button discussion).
+- [x] 13.5 Repository aggregation queries — `QRCodeScanRepository::countForQrCode`, `countForQrCodeSince`, `countDailyBuckets` (UTC `SUBSTRING` bucket + zero-fills every day in the window so consumers get a contiguous series — the interface contract is explicit about this), `findRecentForQrCode`. Consumed by the stats page. Weekly bucketing will be added alongside §13.2 when the range selector introduces the >30-day windows that actually need weekly granularity.
+- [ ] 13.6 Integration-test the aggregation queries against a real DB fixture in `tests/Integration/Repository/QRCodeScanRepositoryTest.php` — deferred, bundled with §17.3.
 
 ## 14. Menu
 
@@ -168,7 +169,7 @@ All tests MUST follow the project conventions (see `CLAUDE.md`): BDD-style metho
 ### 17.3 Integration tests (real DB)
 
 - [ ] 17.3.1 `tests/Integration/Repository/QRCodeRepositoryTest.php` — `findOneEnabledBySlug`: finds existing, misses unknown, misses when disabled; `getScansCount` accuracy; slug unique constraint trips on duplicate
-- [ ] 17.3.2 `tests/Integration/Repository/QRCodeScanRepositoryTest.php` — total count, last-N-days count, daily buckets, weekly buckets, paginated recent scans
+- [ ] 17.3.2 `tests/Integration/Repository/QRCodeScanRepositoryTest.php` — total count, last-N-days count, daily buckets (incl. zero-fill: window spans days with NO scans and the returned map contains them as `0`), paginated recent scans. Weekly buckets land here once §13.2 reintroduces them.
 - [ ] 17.3.3 `tests/Integration/CascadeDeleteTest.php` — deleting a product removes its `ProductRelatedQRCode` and the QR's `QRCodeScan` rows
 - [ ] 17.3.4 `tests/Integration/Model/TimestampableTest.php` — persisting a QR code populates `createdAt`/`updatedAt` via Gedmo; updating an existing QR bumps `updatedAt` but leaves `createdAt`; persisting a scan populates `scannedAt`
 

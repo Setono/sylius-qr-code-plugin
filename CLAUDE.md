@@ -206,6 +206,9 @@ tests/Application/bin/console --env=dev sylius:fixtures:load default --no-intera
 - **Every file under `src/Resources/config/routes/` must be imported in BOTH `src/Resources/config/routes.yaml` AND `src/Resources/config/routes_no_locale.yaml`.** The two files are parallel dispatchers — `routes.yaml` is used when the host app uses localized URLs (`/{_locale}/...`), `routes_no_locale.yaml` when it doesn't. Forgetting to add an import to `routes_no_locale.yaml` means the route silently vanishes for non-localized stores. Admin and global (non-locale-prefixed) routes appear identically in both; only shop routes differ (the localized dispatcher wraps them in the `/{_locale}` prefix).
 - **After changing routes or service wiring, verify the booted kernel sees the change:** `rm -rf tests/Application/var/cache/ && tests/Application/bin/console --env=dev cache:warmup`, then `tests/Application/bin/console --env=dev debug:router | rg <route-name>` to confirm registration. Stale dev cache is the most common reason a "correct-looking" route appears missing.
 
+### Running SQL Against the Test App
+- **Always go through `tests/Application/bin/console dbal:run-sql "<query>"`** (add `--force-fetch` to see returned rows — without it, only row counts are printed, so `SHOW INDEX FROM ...` and other `SELECT`-shaped statements appear to return 0 rows). Do NOT reach for a `mysql` / `psql` client binary — it won't be on `$PATH` in every environment, it bypasses Doctrine's configured connection, and it sidesteps the `DATABASE_URL` that the rest of the test app uses.
+
 ## Bash Tools Recommendations
 
 Use the right tool for the right job when executing bash commands:

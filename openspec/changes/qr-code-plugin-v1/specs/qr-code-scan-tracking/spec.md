@@ -14,6 +14,17 @@ The plugin SHALL provide a `ScanTrackerInterface` with method `track(QRCodeInter
 - **WHEN** the application binds a different implementation to `ScanTrackerInterface`
 - **THEN** the redirect action uses the substitute without code changes
 
+### Requirement: Scan Table Index Layout
+
+The `setono_sylius_qr_code__qr_code_scan` table SHALL carry a composite B-tree index on `(qr_code_id, scanned_at)`. The leading column matches every per-QR query (count, range-count, range-bucket, recent-scans). The trailing column orders the remaining reads — the range scans in the stats page, and the `ORDER BY scanned_at DESC LIMIT ...` recent-scans query — so the database can serve them from the already-ordered index without a filesort.
+
+The `setono_sylius_qr_code__qr_code` table SHALL carry an index on the `type` (STI discriminator) column for the admin grid's Type filter. The `slug` column is UNIQUE (which implies an index) and already covers `findOneBySlug` / `findOneEnabledBySlug` — the redirect endpoint's hot path.
+
+#### Scenario: Scan queries use the composite index
+
+- **WHEN** `EXPLAIN` is run on `SELECT ... FROM setono_sylius_qr_code__qr_code_scan WHERE qr_code_id = ? AND scanned_at >= ? AND scanned_at < ? ORDER BY scanned_at DESC`
+- **THEN** the query plan references the `(qr_code_id, scanned_at)` composite index (key used) and does not list a filesort
+
 ### Requirement: Scan Record Fields
 
 Each `QRCodeScan` record SHALL capture: a reference to the QR code, `scannedAt` (datetime immutable, UTC, populated by Gedmo Timestampable at flush), `ipAddress` (client IP; the literal string `unknown` if absent), and `userAgent` (truncated to 512 characters). Scans are immutable — there is no `updatedAt`. There is no separate `createdAt` — in the synchronous v1 tracker the row is created at scan time, so it would duplicate `scannedAt`. The plugin does not classify scans into device categories in v1; the raw user agent is retained for optional downstream analysis.

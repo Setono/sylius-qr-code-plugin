@@ -17,6 +17,16 @@
                        inheritance-type="SINGLE_TABLE">
         <discriminator-column name="type" type="string" length="20"/>
 
+        <!--
+            slug is already unique (declared on the field below) so it gets a UNIQUE index
+            automatically — that covers findOneBySlug / findOneEnabledBySlug, which is the hot
+            path hit on every redirect. We additionally index `type` (the STI discriminator) for
+            the admin grid's Type filter.
+        -->
+        <indexes>
+            <index name="setono_sylius_qr_code_type_idx" columns="type"/>
+        </indexes>
+
         <id name="id" type="integer" column="id">
             <generator strategy="AUTO"/>
         </id>

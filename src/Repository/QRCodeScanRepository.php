@@ -60,38 +60,24 @@ class QRCodeScanRepository extends EntityRepository implements QRCodeScanReposit
             ->getArrayResult()
         ;
 
-        $result = [];
+        $counts = [];
         foreach ($rows as $row) {
-            $result[$row['bucket']] = (int) $row['count'];
+            $counts[$row['bucket']] = (int) $row['count'];
         }
 
-        return $result;
-    }
-
-    public function countWeeklyBuckets(QRCodeInterface $qrCode, \DateTimeImmutable $from, \DateTimeImmutable $until): array
-    {
-        /** @var list<array{scannedAt: \DateTimeImmutable}> $scans */
-        $scans = $this->createQueryBuilder('s')
-            ->select('s.scannedAt')
-            ->andWhere('s.qrCode = :qrCode')
-            ->andWhere('s.scannedAt >= :from')
-            ->andWhere('s.scannedAt < :until')
-            ->setParameter('qrCode', $qrCode)
-            ->setParameter('from', $from)
-            ->setParameter('until', $until)
-            ->getQuery()
-            ->getArrayResult()
-        ;
-
-        $result = [];
-        foreach ($scans as $scan) {
-            $bucket = $scan['scannedAt']->format('o-\WW');
-            $result[$bucket] = ($result[$bucket] ?? 0) + 1;
+        // Zero-fill every day in the window so callers (the stats chart in particular) get a
+        // contiguous series without having to post-process — a line chart with gaps draws as a
+        // broken line, which is misleading when the gap just means "no scans that day".
+        $filled = [];
+        $cursor = $from->setTime(0, 0);
+        $end = $until->setTime(0, 0);
+        while ($cursor <= $end) {
+            $key = $cursor->format('Y-m-d');
+            $filled[$key] = $counts[$key] ?? 0;
+            $cursor = $cursor->modify('+1 day');
         }
 
-        ksort($result);
-
-        return $result;
+        return $filled;
     }
 
     public function findRecentForQrCode(QRCodeInterface $qrCode, \DateTimeImmutable $from, \DateTimeImmutable $until, int $limit, int $offset = 0): array

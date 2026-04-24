@@ -44,6 +44,15 @@ setono_sylius_qr_code_admin_product_related_qr_code:
         vars:
             all:
                 subheader: setono_sylius_qr_code.ui.product_qr_code
+                # Sylius's default breadcrumb derives `{applicationName}.ui.{pluralName}` —
+                # which becomes the untranslated `setono_sylius_qr_code.ui.product_related_qr_codes`
+                # for this subtype. Override both the label and the link so the crumb reads
+                # "QR codes" and navigates back to the unified grid rather than the subtype's
+                # own index route (which just redirects to the grid anyway).
+                breadcrumb: setono_sylius_qr_code.ui.qr_codes
+                index:
+                    route:
+                        name: setono_sylius_qr_code_admin_qr_code_index
     type: sylius.resource
 
 # After saving a subtype (create/update), Sylius's RedirectHandler looks up
@@ -65,6 +74,10 @@ setono_sylius_qr_code_admin_target_url_qr_code:
         vars:
             all:
                 subheader: setono_sylius_qr_code.ui.url_qr_code
+                breadcrumb: setono_sylius_qr_code.ui.qr_codes
+                index:
+                    route:
+                        name: setono_sylius_qr_code_admin_qr_code_index
     type: sylius.resource
 
 setono_sylius_qr_code_admin_target_url_qr_code_index:
@@ -79,7 +92,7 @@ setono_sylius_qr_code_admin_target_url_qr_code_index:
 
 setono_sylius_qr_code_admin_qr_code_stats:
     path: /qr-codes/{id}/stats
-    controller: Setono\SyliusQRCodePlugin\Action\Admin\StatsAction
+    controller: Setono\SyliusQRCodePlugin\Controller\StatsAction
     methods: [GET]
     requirements:
         id: '\d+'

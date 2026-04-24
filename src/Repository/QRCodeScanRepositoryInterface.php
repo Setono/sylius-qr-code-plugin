@@ -18,18 +18,13 @@ interface QRCodeScanRepositoryInterface extends RepositoryInterface
     public function countForQrCodeSince(QRCodeInterface $qrCode, \DateTimeImmutable $since): int;
 
     /**
-     * Returns counts per day (UTC) for the given QR code within [from, until].
+     * Returns counts per day (UTC) for the given QR code within [from, until]. Every day in
+     * the window is present in the returned map — days with no scans return `0` — so a chart
+     * consumer can render a contiguous line without post-processing.
      *
      * @return array<string, int> Map of `YYYY-MM-DD` → count
      */
     public function countDailyBuckets(QRCodeInterface $qrCode, \DateTimeImmutable $from, \DateTimeImmutable $until): array;
-
-    /**
-     * Returns counts per ISO week (UTC) for the given QR code within [from, until].
-     *
-     * @return array<string, int> Map of `YYYY-Www` → count
-     */
-    public function countWeeklyBuckets(QRCodeInterface $qrCode, \DateTimeImmutable $from, \DateTimeImmutable $until): array;
 
     /**
      * @return list<QRCodeScanInterface>
