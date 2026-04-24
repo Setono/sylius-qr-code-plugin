@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+                               https://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Setono\SyliusQRCodePlugin\Generator\QRCodeGenerator">
+            <argument type="service" id="router"/>
+            <argument>1200</argument>
+            <argument>%setono_sylius_qr_code.logo.path%</argument>
+            <argument>%setono_sylius_qr_code.logo.size%</argument>
+            <!--
+                QRCodeGenerator implements Psr\Log\LoggerAwareInterface. The constructor seeds a
+                NullLogger so the service is usable without a wired logger; this call replaces it
+                with the real one when available.
+            -->
+            <call method="setLogger">
+                <argument type="service" id="logger" on-invalid="ignore"/>
+            </call>
+        </service>
+
+        <service id="Setono\SyliusQRCodePlugin\Generator\QRCodeGeneratorInterface"
+                 alias="Setono\SyliusQRCodePlugin\Generator\QRCodeGenerator"/>
+    </services>
+</container>

@@ -16,5 +16,12 @@
             <argument type="service" id="Setono\SyliusQRCodePlugin\Tracker\ScanTrackerInterface"/>
             <argument type="service" id="logger"/>
         </service>
+
+        <service id="Setono\SyliusQRCodePlugin\Controller\DownloadAction" public="true">
+            <argument type="service" id="setono_sylius_qr_code.repository.qr_code"/>
+            <argument type="service" id="sylius.repository.channel"/>
+            <argument type="service" id="Setono\SyliusQRCodePlugin\Channel\DefaultChannelResolverInterface"/>
+            <argument type="service" id="Setono\SyliusQRCodePlugin\Generator\QRCodeGeneratorInterface"/>
+        </service>
     </services>
 </container>

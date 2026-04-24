@@ -68,7 +68,7 @@ setono_sylius_qr_code_admin_qr_code_stats:
 
 setono_sylius_qr_code_admin_qr_code_download:
     path: /qr-codes/{id}/download/{format}/{channel}
-    controller: Setono\SyliusQRCodePlugin\Action\Admin\DownloadAction
+    controller: Setono\SyliusQRCodePlugin\Controller\DownloadAction
     methods: [GET]
     defaults:
         format: png

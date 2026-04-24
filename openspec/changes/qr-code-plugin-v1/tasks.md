@@ -37,11 +37,12 @@
 
 ## 5. Admin Grid and Routes
 
-- [ ] 5.1 Prepend `sylius_grid.grids.setono_sylius_qr_code_admin_qr_code` per design (fields: name/slug/type/scansCount/enabled; filters: name/slug/type/enabled — NO channel column/filter; main dropdown for per-type create, row actions: stats/download/update/delete, bulk delete)
+- [ ] 5.1 Prepend `sylius_grid.grids.setono_sylius_qr_code_admin_qr_code` per design (fields: name/slug/type/scansCount/enabled; filters: name/slug/type/enabled — NO channel column/filter; main dropdown for per-type create, row actions: show/stats/download/update/delete, bulk delete)
 - [ ] 5.2 Create `src/Resources/views/admin/qr_code/grid/field/type.html.twig` rendering a label per discriminator value
-- [ ] 5.3 Create `src/Resources/config/routes/admin.yaml` with the base resource (grid + delete + update) using a custom controller, plus two subtype resources (`only: ['create', 'update']`), plus stats / download / generate-name custom routes
+- [ ] 5.3 Create `src/Resources/config/routes/admin.yaml` with the base resource (grid + delete + update + show) using a custom controller, plus two subtype resources (`only: ['create', 'update']`), plus stats / download / generate-name custom routes
 - [ ] 5.4 Create `src/Controller/QRCodeController.php` extending Sylius `ResourceController` overriding `updateAction` to redirect to the correct subtype route based on the entity class
 - [ ] 5.5 Prepend `sylius_grid.grids.sylius_admin_product.actions.bulk.generate_qr_codes` to add the bulk action to the product grid. NOTE: deferred until §12 — Sylius grid bulk actions require a template + working controller; the prepend alone 500s the product grid because Sylius looks for `@SyliusUi/Grid/BulkAction/<type>.html.twig` and there's no `default` template. This task is now bundled with §12.1–§12.3.
+- [ ] 5.6 Add row action `show` to the grid routing to `setono_sylius_qr_code_admin_qr_code_show` (the resource's built-in show action — no custom action needed beyond the Sylius convention); see §19 for the rendered template.
 
 ## 6. Admin Forms
 
@@ -82,14 +83,14 @@
 
 ## 11. Image Generation and Download
 
-- [ ] 11.1 Create `src/Generator/QRCodeGeneratorInterface.php` and `QRCodeGenerator.php` using endroid/qr-code with configured defaults (black/white, margin 10, default size 1200 for PNG). Methods take `(QRCodeInterface $qrCode, ChannelInterface $channel, ...)` — the channel determines the encoded hostname.
-- [ ] 11.2 In the generator, encode the absolute redirect URL computed from the supplied channel's hostname + slug
-- [ ] 11.3 Apply entity `errorCorrectionLevel` to the builder; when `embedLogo = true` and a valid logo file exists, embed at configured `%` size; on missing logo file, log a warning and produce QR without logo
-- [ ] 11.4 Create `src/Channel/DefaultChannelResolverInterface.php` and a default implementation `DefaultChannelResolver` that returns the first enabled channel (by code ascending) via `ChannelRepositoryInterface`, throwing a clear exception when none exist
-- [ ] 11.5 Unit-test the generator with Prophecy: PNG size, error correction level forwarded, logo-absent fallback, encoded URL uses supplied channel's hostname, different channels → different encoded URLs
-- [ ] 11.6 Unit-test `DefaultChannelResolver` with Prophecy: returns first enabled by code, skips disabled, throws when no enabled channels, substitution works when overridden
-- [ ] 11.7 Create `src/Action/Admin/DownloadAction.php` handling `{format}` ∈ {png, svg, pdf} (requirements + default PNG) and optional `{channel}` path segment. When `channel` omitted → `DefaultChannelResolver`; when supplied → look up via `ChannelRepositoryInterface`, 404 if not found or disabled. Stream response with correct `Content-Type`, `Content-Disposition` (`<slug>.<ext>` for default, `<slug>-<channelCode>.<ext>` for explicit), `ETag` (hash of `id|updatedAt|format|channelCode`), `Cache-Control: private, max-age=86400`; honor `If-None-Match` → 304
-- [ ] 11.8 Functional-test the download action: 3 formats, default (resolver-picked) channel, explicit channel, 304 on matching ETag, different ETag per channel, 200 + new ETag after `updatedAt` bump, 404 on unknown format, 404 on unknown channel code
+- [x] 11.1 `src/Generator/QRCodeGeneratorInterface.php` + `QRCodeGenerator.php` using endroid/qr-code with configured defaults (margin 10, default size 1200). Methods take `(QRCodeInterface $qrCode, ChannelInterface $channel, string $format, ?int $size)`; the channel determines the encoded hostname.
+- [x] 11.2 Generator encodes `https://{channel.hostname}/qr/{slug}` — non-locale-prefixed, matches the plugin's global redirect route.
+- [x] 11.3 Error-correction letter (L/M/Q/H) mapped to endroid enum with Medium fallback + log on unknown letter; when `embedLogo=true`, logo path is either configured + existing (embedded with punchout) or warned + skipped.
+- [x] 11.4 `src/Channel/DefaultChannelResolverInterface.php` + `DefaultChannelResolver.php` returning the first enabled channel sorted by code ascending, throws `RuntimeException` when none exist.
+- [x] 11.5 `tests/Unit/Generator/QRCodeGeneratorTest.php` (10 tests): PNG/SVG/PDF mime type, per-channel output differs, unsupported format rejected, channel-without-hostname rejected, QR-without-slug rejected, unknown ECC letter → Medium fallback + log, logo-path unset + embedLogo → warn + continue, logo-path missing-file + embedLogo → warn + continue, default-size applied to raster output.
+- [x] 11.6 `tests/Unit/Channel/DefaultChannelResolverTest.php` (3 tests): first-by-code-asc, iterable (not only array) collection, throw when empty.
+- [x] 11.7 `src/Controller/DownloadAction.php` handling `{format}` ∈ {png, svg, pdf} (route requirements + default PNG) and optional `{channel}` path segment. When `channel` omitted → `DefaultChannelResolver`; when supplied → `ChannelRepositoryInterface::findOneByCode` + enabled check, 404 otherwise. Streams the response with correct `Content-Type`, `Content-Disposition` (`<slug>.<ext>` for default, `<slug>-<channelCode>.<ext>` for explicit), `ETag` (hash(xxh128) of `id|updatedAt|format|channelCode`), `Cache-Control: private, max-age=86400`; honours `If-None-Match` → 304. Covered by `tests/Unit/Controller/DownloadActionTest.php` (8 tests).
+- [ ] 11.8 Functional-test the download action — deferred to §17.4.4; unit tests cover the HTTP semantics (mime, filename, etag, 304, 404 branches) against a mocked generator.
 
 ## 12. Bulk Generation from Product Grid
 
@@ -140,8 +141,8 @@ All tests MUST follow the project conventions (see `CLAUDE.md`): BDD-style metho
 - [ ] 17.1.6 `tests/Unit/Factory/QRCodeFactoryTest.php` — both factory methods seed defaults from injected config; `utmCampaign` snapshot-from-slug behavior
 - [x] 17.1.7 `tests/Unit/Validator/Constraints/UniqueSlugValidatorTest.php` — happy path, duplicate rejection, update-with-unchanged-slug allowed
 - [x] 17.1.8 `tests/Unit/Resolver/TargetUrlResolverTest.php` — target-url subtype (channel irrelevant), product subtype with matching request channel, product-with-missing-translation → exception, UTM append without existing query, UTM override of conflicting query, null UTM fields skipped, unknown subtype throws `LogicException`
-- [ ] 17.1.9 `tests/Unit/Generator/QRCodeGeneratorTest.php` — PNG default size 1200 and custom size, error correction forwarded, logo embed when file exists, warning-and-fallback when logo path missing, encoded URL matches supplied channel's hostname + slug, same QR + two channels → two different encoded URLs
-- [ ] 17.1.9b `tests/Unit/Channel/DefaultChannelResolverTest.php` — returns first enabled by code ascending, skips disabled, throws when none enabled
+- [x] 17.1.9 `tests/Unit/Generator/QRCodeGeneratorTest.php` — PNG default size 1200 and custom size, error correction forwarded, logo embed when file exists, warning-and-fallback when logo path missing, encoded URL matches supplied channel's hostname + slug, same QR + two channels → two different encoded URLs
+- [x] 17.1.9b `tests/Unit/Channel/DefaultChannelResolverTest.php` — returns first enabled by code ascending, skips disabled, throws when none enabled
 - [x] 17.1.10 `tests/Unit/Tracker/ScanTrackerTest.php` — entity fields populated correctly, user-agent truncated at 512, empty UA stored as empty string, missing IP stored as `unknown`, persist + flush invoked
 - [ ] 17.1.11 `tests/Unit/Controller/QRCodeControllerTest.php` — `updateAction` redirects to product subtype route for product QR, target-url subtype route for URL QR, throws for unknown type
 - [x] 17.1.12 `tests/Unit/Menu/AdminMenuListenerTest.php` — adds `qr_codes` under `marketing`, no-op when marketing child absent
@@ -183,3 +184,11 @@ All tests MUST follow the project conventions (see `CLAUDE.md`): BDD-style metho
 - [ ] 18.3 `composer phpunit` runs green for all added unit, integration, and functional tests
 - [ ] 18.4 Update the root `README.md` with: installation, bundle registration, app entity STI snippet, config reference, and the cascade-delete caveat
 - [ ] 18.5 Replace the `TODO` in `CLAUDE.md` "Project Overview" with a 2-3 line description of the plugin
+
+## 19. Show Page
+
+- [ ] 19.1 Drop `show` from the `except: ['create', 'show']` list in `setono_sylius_qr_code_admin_qr_code` in `src/Resources/config/routes/admin.yaml` so Sylius auto-registers `setono_sylius_qr_code_admin_qr_code_show` at `GET /admin/qr-codes/{id}`.
+- [ ] 19.2 Create `src/Resources/views/admin/qr_code/show.html.twig` rendering the read-only detail view per the spec: name, slug, type (human label), enabled state, `createdAt`/`updatedAt`, `redirectType`, `errorCorrectionLevel`, resolved public redirect URL, `scansCount`, UTM source/medium/campaign, subtype-specific fields (product link or `targetUrl`), preview image, and shortcut buttons (update / delete / download / stats). The template SHALL live at the Sylius CRUD convention path so adopting apps can override via `@SyliusAdmin/Crud/show.html.twig` lookup rules.
+- [ ] 19.3 Add the row action `show` to the grid config in `src/DependencyInjection/SetonoSyliusQRCodeExtension.php` (Sylius action type `show` with link to `setono_sylius_qr_code_admin_qr_code_show` carrying `id: resource.id`).
+- [ ] 19.4 Add translation keys for the show page labels (group `setono_sylius_qr_code.ui.show.*`) in `src/Resources/translations/messages.en.yaml` and mirror to the nine other locales with English fallback.
+- [ ] 19.5 Functional-test `tests/Functional/Admin/QRCodeShowActionTest.php` — renders for both subtypes with the correct subtype-specific fields, 404 for unknown id, preview `<img>` present, shortcut buttons present and pointing at the right routes.

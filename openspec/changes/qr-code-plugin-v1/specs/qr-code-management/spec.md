@@ -94,7 +94,7 @@ The admin form SHALL offer an "Auto" option for error correction level. At save 
 
 ### Requirement: Admin Grid with Unified List and Per-Type Creation
 
-The plugin SHALL register a Sylius admin grid at `setono_sylius_qr_code_admin_qr_code` listing all QR codes regardless of subtype. The grid SHALL include columns: name, slug, type (with human label), scans count, enabled. The grid SHALL provide filters for name, slug, type, and enabled. The main "Create" action SHALL be a dropdown offering two options: "Product QR Code" (routes to `setono_sylius_qr_code_admin_product_related_qr_code_create`) and "URL QR Code" (routes to `setono_sylius_qr_code_admin_target_url_qr_code_create`). Row actions SHALL include: see stats, download, update, delete. Bulk action: delete.
+The plugin SHALL register a Sylius admin grid at `setono_sylius_qr_code_admin_qr_code` listing all QR codes regardless of subtype. The grid SHALL include columns: name, slug, type (with human label), scans count, enabled. The grid SHALL provide filters for name, slug, type, and enabled. The main "Create" action SHALL be a dropdown offering two options: "Product QR Code" (routes to `setono_sylius_qr_code_admin_product_related_qr_code_create`) and "URL QR Code" (routes to `setono_sylius_qr_code_admin_target_url_qr_code_create`). Row actions SHALL include: show, see stats, download, update, delete. Bulk action: delete.
 
 #### Scenario: Admin sees both subtypes in a single grid
 
@@ -105,6 +105,25 @@ The plugin SHALL register a Sylius admin grid at `setono_sylius_qr_code_admin_qr
 
 - **WHEN** an admin clicks "Edit" on a product QR code row
 - **THEN** the browser is redirected to the `ProductRelatedQRCode` update route, which renders the product-specific form
+
+### Requirement: QR Code Show Page
+
+The plugin SHALL expose `GET /admin/qr-codes/{id}` (name `setono_sylius_qr_code_admin_qr_code_show`) rendering a read-only detail page for a single QR code. The page SHALL show: the QR code's name, slug, type (human label), enabled state, timestamps (`createdAt`, `updatedAt`), redirect type (301/302/307), error correction level, the resolved public redirect URL, scans count, UTM parameters (source/medium/campaign), subtype-specific fields (linked product for `ProductRelatedQRCode`; `targetUrl` for `TargetUrlQRCode`), and a preview image. It SHALL also surface shortcuts to the existing update, delete, download, and stats actions for the same entity. Unknown ids SHALL return 404. The page SHALL be rendered by a subclass of Sylius's `ResourceController` (the plugin's `QRCodeController`) so adopting apps can override it via `classes.controller`; the template name SHALL follow Sylius's `@SyliusAdmin\Crud\show.html.twig` convention, allowing app-level `show.html.twig` overrides.
+
+#### Scenario: Show page renders for a known QR code
+
+- **WHEN** an admin navigates to `/admin/qr-codes/42` for an existing product QR code
+- **THEN** the page renders with the QR's name, slug, enabled state, timestamps, UTM parameters, the linked product, a preview image, and shortcut buttons to update/delete/download/stats
+
+#### Scenario: Show page renders the subtype-specific fields
+
+- **WHEN** an admin opens the show page for a `TargetUrlQRCode`
+- **THEN** the rendered detail view includes the `targetUrl` field and omits the product field (and vice versa for `ProductRelatedQRCode`)
+
+#### Scenario: Show page for unknown id returns 404
+
+- **WHEN** an admin navigates to `/admin/qr-codes/9999` with no such entity
+- **THEN** the response status is 404
 
 ### Requirement: Admin Menu Integration
 
