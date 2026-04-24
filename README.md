@@ -41,6 +41,64 @@ Enjoy!
 
 To be able to set up a plugin's database, remember to configure you database credentials in `tests/Application/.env` and `tests/Application/.env.test`.
 
+## Hooking into scan events
+
+Every time the public `/qr/{slug}` endpoint resolves an enabled QR code, the plugin dispatches a
+`Setono\SyliusQRCodePlugin\Event\QRCodeScannedEvent` before returning the `RedirectResponse`.
+The event carries the resolved `QRCodeInterface` and the incoming `Request`, and is the single
+extension point for anything you want to do on a scan — send it to your analytics pipeline,
+Matomo, Google Analytics server-side, Segment, Slack, anything.
+
+The plugin's own scan tracker is wired as a subscriber on this event, so you don't need to do
+anything to keep the built-in `QRCodeScan` rows being persisted.
+
+To add your own tracking, register a Symfony event subscriber or listener on
+`QRCodeScannedEvent::class`:
+
+```php
+<?php
+
+namespace App\EventSubscriber;
+
+use Setono\SyliusQRCodePlugin\Event\QRCodeScannedEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+final class TrackScanInGoogleAnalytics implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            QRCodeScannedEvent::class => 'onScan',
+        ];
+    }
+
+    public function onScan(QRCodeScannedEvent $event): void
+    {
+        $qrCode = $event->qrCode;
+        $request = $event->request;
+
+        // ... send a Measurement Protocol hit, enqueue a Messenger message, etc.
+    }
+}
+```
+
+Register it as a service with `autoconfigure: true` (Symfony picks up the tag automatically),
+or add `tags: [kernel.event_subscriber]` explicitly.
+
+**Listener exceptions never block the redirect.** `RedirectAction` wraps the dispatch call in a
+`try/catch` — if a listener throws, the exception is logged at `error` level with the QR code
+id and slug, and the user still gets redirected to the target URL. Misbehaving third-party
+tracking code can never strand a scanner on a broken page.
+
+If you need to **replace** the built-in tracker (e.g. async persistence via Symfony Messenger),
+two options:
+
+1. **Decorate the `ScanTrackerInterface` service.** The shipped subscriber delegates to it, so
+   your replacement transparently picks up the built-in flow without you having to touch the
+   event wiring.
+2. **Remove the shipped subscriber tag and register your own subscriber.** Do this if you want
+   to drop `QRCodeScan` persistence entirely or replace it with a very different storage shape.
+
 [ico-version]: https://poser.pugx.org/setono/sylius-qr-code-plugin/v/stable
 [ico-license]: https://poser.pugx.org/setono/sylius-qr-code-plugin/license
 [ico-github-actions]: https://github.com/Setono/SyliusQRCodePlugin/workflows/build/badge.svg

@@ -8,6 +8,14 @@
         <service id="Setono\SyliusQRCodePlugin\Tracker\ScanTracker">
             <argument type="service" id="Setono\SyliusQRCodePlugin\Factory\QRCodeScanFactoryInterface"/>
             <argument type="service" id="doctrine"/>
+            <!--
+                ScanTracker implements EventSubscriberInterface and listens on
+                Setono\SyliusQRCodePlugin\Event\QRCodeScannedEvent — dispatched by RedirectAction
+                on every scan. Adopting apps that want to suppress built-in tracking can set this
+                service to `synthetic="true"` + an empty stub, or remove the tag in their own
+                compiler pass, and wire their own subscriber instead.
+            -->
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Setono\SyliusQRCodePlugin\Tracker\ScanTrackerInterface"

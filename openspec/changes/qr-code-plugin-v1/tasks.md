@@ -119,7 +119,7 @@ Also registered the custom bulk-action type:
 
 - [x] 13.1 `src/Controller/StatsAction.php` (invokable, public=true, registered in `services/controller.xml` with QR + scan repositories + Twig) renders the stats page for `GET /admin/qr-codes/{id}/stats`. Payload: total scans, quick-stat cards for last 7/30/90 days, zero-filled daily buckets for the past 30 days (chart labels + data pre-split in the controller), and the last 50 scans. 404 on unknown id. Route registered at that path pointing at the new class. Covered by `tests/Unit/Controller/StatsActionTest.php` (3 tests).
 - [ ] 13.2 `StatsDataAction` (AJAX) returning JSON for chart refresh on range change — deferred. The page currently ships a fixed 30-day window with daily bucketing. Range selector UI + this endpoint land together in a follow-up slice. Weekly bucketing already lives on `QRCodeScanRepository::countWeeklyBuckets()` awaiting a consumer.
-- [ ] 13.3 `ExportCsvAction` streaming CSV of scans for the selected range — deferred to the same follow-up slice as §13.2.
+- [~] 13.3 CSV export of scans — **dropped**. Originally spec'd and implemented, then reverted. The use cases (analyse in Excel, compliance, share with non-admins, big-volume ad-hoc analytics) were all speculative with no concrete workflow asking for it; the in-browser recent-scans table plus the line chart cover what admins actually do today. If a real need surfaces we can reintroduce it cheaply — the repo method `iterateForQrCodeInRange()` would come back with `toIterable()` for streaming.
 - [x] 13.4 `src/Resources/views/admin/qr_code/stats.html.twig` extending `@SyliusAdmin/layout.html.twig`, breadcrumb trail Administration › QR codes › {name} › Statistics, four quick-stat cards, Chart.js line chart (loaded from `cdn.jsdelivr.net` — adopters can swap for an Encore asset when they wire their own build), Recent scans table (limit 50), and Show / Edit / Download buttons. Per-channel download matrix is deferred until the download dropdown decision lands (see the earlier split-button discussion).
 - [x] 13.5 Repository aggregation queries — `QRCodeScanRepository::countForQrCode`, `countForQrCodeSince`, `countDailyBuckets` (UTC `SUBSTRING` bucket + zero-fills every day in the window so consumers get a contiguous series — the interface contract is explicit about this), `findRecentForQrCode`. Consumed by the stats page. Weekly bucketing will be added alongside §13.2 when the range selector introduces the >30-day windows that actually need weekly granularity.
 - [ ] 13.6 Integration-test the aggregation queries against a real DB fixture in `tests/Integration/Repository/QRCodeScanRepositoryTest.php` — deferred, bundled with §17.3.
@@ -142,7 +142,7 @@ Also registered the custom bulk-action type:
 - [ ] 16.1 Ensure the test app Kernel loads the plugin bundle and imports its routes (admin prefix `/admin`, frontend root)
 - [ ] 16.2 Run `bin/console doctrine:schema:update --complete --force` in the test app; confirm both tables exist with the composite unique index
 - [ ] 16.3 Add a basic fixture creating a channel, two products, one target-URL QR code, one product QR code, and a handful of scans for manual testing
-- [ ] 16.4 Boot the test app locally, sign in (sylius/sylius), walk through: create of both subtypes, bulk generate from product grid, redirect hits, stats page, download in three formats, CSV export
+- [ ] 16.4 Boot the test app locally, sign in (sylius/sylius), walk through: create of both subtypes, bulk generate from product grid, redirect hits, stats page, download in three formats
 
 ## 17. Comprehensive Test Coverage
 
@@ -185,7 +185,7 @@ All tests MUST follow the project conventions (see `CLAUDE.md`): BDD-style metho
 - [ ] 17.4.4 `tests/Functional/Admin/DownloadActionTest.php` — PNG/SVG/PDF each return correct `Content-Type` and `Content-Disposition` (default and per-channel filename forms), default format is PNG, default-channel path uses the resolver, explicit channel path uses that channel's hostname, unknown format → 404, unknown/disabled channel → 404, ETag set on response, different channels → different ETags, matching `If-None-Match` → 304, updated entity yields a new ETag
 - [ ] 17.4.5 `tests/Functional/Admin/BulkGenerateActionTest.php` — 5 new products → 5 created / 0 skipped, 3 products with 1 slug conflict → 2 created / 1 skipped, zero-selection guard, flash message rendered
 - [ ] 17.4.6 `tests/Functional/Admin/StatsActionTest.php` — renders for existing QR, 404 for unknown, range selector JSON endpoint returns daily buckets ≤30d and weekly buckets >30d
-- [ ] 17.4.7 `tests/Functional/Admin/ExportCsvActionTest.php` — header + data rows, ascending by `scanned_at`, header-only when no scans in range
+- [ ] 17.4.7 (dropped with §13.3 — see above)
 - [ ] 17.4.8 `tests/Functional/Admin/MenuTest.php` — `QR Codes` link present under `Marketing` after admin login
 
 ### 17.5 Coverage expectations

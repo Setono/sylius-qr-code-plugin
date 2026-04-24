@@ -1,18 +1,34 @@
 ## ADDED Requirements
 
-### Requirement: Scan Tracker Service
+### Requirement: Scan Event Dispatch
 
-The plugin SHALL provide a `ScanTrackerInterface` with method `track(QRCodeInterface $qrCode, Request $request): void`. The v1 implementation SHALL synchronously create and persist a `QRCodeScan` entity capturing the scan. The interface SHALL be the only collaborator used by the redirect action, so that a future asynchronous implementation (e.g., Symfony Messenger) can be substituted without changing callers.
+The redirect action (`Setono\SyliusQRCodePlugin\Controller\RedirectAction`) SHALL dispatch a `QRCodeScannedEvent` (carrying the resolved `QRCodeInterface` and the incoming `Request`) through Symfony's `EventDispatcherInterface` before returning the `RedirectResponse`. The event is the single extension point for scan-driven side effects — the plugin's own scan tracker SHALL subscribe to this event, and adopting applications SHALL be able to register their own listeners/subscribers for additional tracking (analytics pipelines, Matomo, Google Analytics server-side, Segment, Slack notifications, etc.) without forking or decorating the redirect action.
 
-#### Scenario: Tracking creates a scan record
+Listener exceptions SHALL NOT block the redirect — the redirect action catches Throwable from dispatch and logs at error level, so a misbehaving third-party listener cannot prevent the user from reaching the target URL.
 
-- **WHEN** `track()` is called with a QR code and a request
+#### Scenario: Plugin scan tracker reacts to the event
+
+- **WHEN** an enabled QR code is resolved and `RedirectAction` dispatches the event
+- **THEN** the plugin's built-in scan tracker subscriber fires and persists a `QRCodeScan` row for that QR code
+
+#### Scenario: Third-party listener receives the event
+
+- **WHEN** an adopting app registers an event listener on the `QRCodeScannedEvent` class
+- **THEN** that listener receives the event with the scanned QR code and the originating request, and can run its own tracking side-effects
+
+#### Scenario: Listener exception does not block the redirect
+
+- **WHEN** a registered listener throws during `dispatch()`
+- **THEN** the redirect action catches the exception, logs it at error level with the QR code id and slug, and still returns the configured `RedirectResponse`
+
+### Requirement: Scan Tracker Subscriber
+
+The plugin SHALL provide a scan tracker implementation registered as an event subscriber on `QRCodeScannedEvent`. The subscriber SHALL create and persist a `QRCodeScan` entity from the event's QR code + request. Adopting applications that want to substitute tracking (async via Symfony Messenger, a different store, no store at all) can either swap the service that implements the subscriber or disable the shipped one and register their own.
+
+#### Scenario: Subscriber creates a scan record
+
+- **WHEN** `QRCodeScannedEvent` is dispatched with a QR code and a request
 - **THEN** a new `QRCodeScan` row exists in the database linked to that QR code
-
-#### Scenario: Interface allows substitution
-
-- **WHEN** the application binds a different implementation to `ScanTrackerInterface`
-- **THEN** the redirect action uses the substitute without code changes
 
 ### Requirement: Scan Table Index Layout
 
@@ -67,20 +83,6 @@ The plugin SHALL expose `GET /admin/qr-codes/{id}/stats` (name `setono_sylius_qr
 
 - **WHEN** an admin selects the "90 days" preset
 - **THEN** the line chart data is fetched (via AJAX) for the last 90 days with weekly buckets
-
-### Requirement: CSV Export of Scans
-
-The stats page SHALL provide an "Export CSV" control that downloads all recorded scans for the QR code within the selected time range. The CSV SHALL include columns: `scanned_at` (ISO 8601 UTC), `ip_address`, `user_agent`.
-
-#### Scenario: CSV export includes all scans in range
-
-- **WHEN** an admin clicks "Export CSV" with a 30-day range selected, and the QR code has 12 scans in that range
-- **THEN** the downloaded CSV has a header row and 12 data rows, ordered by `scanned_at` ascending
-
-#### Scenario: CSV export with no scans returns header-only file
-
-- **WHEN** a QR code has no scans in the selected range
-- **THEN** the CSV contains only the header row
 
 ### Requirement: Scans Count Available on the Grid
 

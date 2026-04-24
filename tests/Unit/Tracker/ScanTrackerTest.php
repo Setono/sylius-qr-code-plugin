@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
+use Setono\SyliusQRCodePlugin\Event\QRCodeScannedEvent;
 use Setono\SyliusQRCodePlugin\Factory\QRCodeScanFactoryInterface;
 use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
 use Setono\SyliusQRCodePlugin\Model\QRCodeScan;
@@ -38,5 +39,39 @@ final class ScanTrackerTest extends TestCase
         $managerRegistry->getManagerForClass($scan::class)->willReturn($entityManager->reveal());
 
         (new ScanTracker($factory->reveal(), $managerRegistry->reveal()))->track($qrCode, $request);
+    }
+
+    /**
+     * @test
+     */
+    public function it_subscribes_to_the_qr_code_scanned_event(): void
+    {
+        self::assertSame(
+            [QRCodeScannedEvent::class => 'onQrCodeScanned'],
+            ScanTracker::getSubscribedEvents(),
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function the_subscriber_method_delegates_to_track(): void
+    {
+        $qrCode = $this->prophesize(QRCodeInterface::class)->reveal();
+        $request = new Request();
+        $scan = new QRCodeScan();
+
+        $factory = $this->prophesize(QRCodeScanFactoryInterface::class);
+        $factory->createFromRequest($qrCode, $request)->shouldBeCalledOnce()->willReturn($scan);
+
+        $entityManager = $this->prophesize(EntityManagerInterface::class);
+        $entityManager->persist($scan)->shouldBeCalledOnce();
+        $entityManager->flush()->shouldBeCalledOnce();
+
+        $managerRegistry = $this->prophesize(ManagerRegistry::class);
+        $managerRegistry->getManagerForClass($scan::class)->willReturn($entityManager->reveal());
+
+        (new ScanTracker($factory->reveal(), $managerRegistry->reveal()))
+            ->onQrCodeScanned(new QRCodeScannedEvent($qrCode, $request));
     }
 }
