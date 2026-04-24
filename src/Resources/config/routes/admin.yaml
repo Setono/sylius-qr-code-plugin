@@ -1,6 +1,6 @@
 # Base QR code resource: index (grid) + delete + a custom update that dispatches to the subtype route.
 # The two subtype resources below each own create + update (the actual forms). Custom routes
-# (stats, download, generate-name) are declared explicitly at the bottom of this file.
+# (stats, download) are declared explicitly at the bottom of this file.
 
 setono_sylius_qr_code_admin_qr_code:
     resource: |
@@ -95,7 +95,3 @@ setono_sylius_qr_code_admin_qr_code_download:
         id: '\d+'
         format: png|svg|pdf
 
-setono_sylius_qr_code_admin_qr_code_generate_name:
-    path: /qr-codes/generate-name
-    controller: Setono\SyliusQRCodePlugin\Action\Admin\GenerateNameAction
-    methods: [POST]

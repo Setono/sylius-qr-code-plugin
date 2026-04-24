@@ -136,9 +136,15 @@ No `createdAt` column — the row IS created at scan time in the synchronous v1 
 
 No device-type column. Raw user agent is stored; any client-side segmentation happens in the stats UI if ever needed. This keeps the write path minimal and avoids a heavy dependency.
 
-### 12. Name generation (AJAX)
+### 12. Form auto-fill (product pre-fill + slug transliteration)
 
-`POST /admin/qr-codes/generate-name` accepts `{slug}` or `{productId}` and returns `{name}`. Used by the admin forms to populate the name field on slug blur or product selection. The name field remains user-editable after auto-population (populate only if empty).
+Two small admin AJAX endpoints back the create-form UX. Both live under the admin firewall (`/admin/*`), no extra auth code.
+
+`GET /admin/qr-codes/generate-slug?name=...` → `{"slug": "..."}` delegates to `Sylius\Component\Product\Generator\SlugGeneratorInterface` (the same transliterator Sylius uses for product slugs, via `Behat\Transliterator`). The `TargetUrlQRCode` form wires its name field to this endpoint on debounced `input`, mirroring `sylius-product-slug.js` + `Product/_slugField.html.twig`. A lock toggle is rendered on edit screens so admins can pin a hand-written slug.
+
+`GET /admin/qr-codes/generate-from-product?productId=...` → `{"name": "...", "slug": "..."}` looks up the product and returns its localized name + translation slug. The `ProductRelatedQRCode` form wires its product autocomplete to this endpoint and pre-fills the name + slug fields — but only when they are empty, so re-picking the product does not clobber manual edits. Slug uniqueness is enforced by the existing `UniqueEntity(fields="slug")` validator; collisions surface at submit time with the usual field-level error.
+
+The earlier single-endpoint design (`POST /admin/qr-codes/generate-name` returning `{"name": "QR: <x>"}`) was discarded because it populated only one field and did not match the admin flow — product QRs want product-driven pre-fill of both fields, URL QRs want name-drives-slug like any other Sylius resource.
 
 ### 13. Bulk product QR generation
 

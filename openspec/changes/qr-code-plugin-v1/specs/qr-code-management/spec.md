@@ -134,24 +134,40 @@ The plugin SHALL add a "QR Codes" entry under the Sylius admin "Marketing" menu 
 - **WHEN** an admin opens the Sylius admin sidebar
 - **THEN** a "QR Codes" link is visible under the "Marketing" section
 
-### Requirement: AJAX Name Generation Endpoint
+### Requirement: Product QR Code Form Pre-fill From Selected Product
 
-The plugin SHALL expose `POST /admin/qr-codes/generate-name` which accepts either a `slug` or a `productId` parameter and returns a JSON object `{ "name": "..." }`. Given a slug, it returns `QR: <slug>`. Given a productId, it returns `QR: <product name>`. This endpoint SHALL only be accessible to authenticated admin users.
+On the `ProductRelatedQRCode` create form, product selection SHALL drive the form — the admin picks a product FIRST, and the name and slug fields SHALL then be pre-filled from the chosen product. The pre-fill SHALL only populate fields the admin has not yet typed into, so re-picking the product after manual edits does not clobber their work. Name is pre-filled with the product's localized name (current admin locale). Slug is pre-filled with the product's translation slug. Slug uniqueness is enforced at save time by the existing `UniqueEntity(fields="slug")` validator; if the pre-filled slug collides, the admin edits it before submitting.
 
-#### Scenario: Generate name from slug
+#### Scenario: Selecting a product pre-fills name and slug
 
-- **WHEN** an admin's browser POSTs `{slug: "summer-sale"}` to the endpoint
-- **THEN** the response is `{name: "QR: summer-sale"}`
+- **WHEN** an admin opens the new-product-QR form, leaves name and slug empty, and picks product "Summer T-Shirt" (slug `summer-t-shirt`)
+- **THEN** the name field becomes `Summer T-Shirt` and the slug field becomes `summer-t-shirt`
 
-#### Scenario: Generate name from product id
+#### Scenario: Pre-fill does not overwrite admin-typed values
 
-- **WHEN** an admin's browser POSTs `{productId: 42}` where product 42 has name "Summer T-Shirt"
-- **THEN** the response is `{name: "QR: Summer T-Shirt"}`
+- **WHEN** an admin types `Campaign XYZ` in the name field, then picks a product
+- **THEN** the name field still reads `Campaign XYZ` (unchanged); the slug field is still pre-filled because it was empty
 
-#### Scenario: Unauthenticated access is denied
+### Requirement: Target URL QR Code Slug Auto-generation From Name
 
-- **WHEN** an unauthenticated client POSTs to the endpoint
-- **THEN** the response status is 401 or 403
+On the `TargetUrlQRCode` create form, the slug field SHALL auto-generate from the name field as the admin types, using the same transliteration path Sylius uses for products (`Sylius\Component\Product\Generator\SlugGeneratorInterface`). Auto-generation SHALL happen on a debounced `input` event (~1s) and SHALL be suppressed once the admin has manually edited the slug field — a lock/unlock toggle SHALL be rendered next to the slug when editing an existing QR code, matching Sylius's product-edit UX (`_slugField.html.twig`).
+
+The plugin SHALL expose a small GET endpoint (`setono_sylius_qr_code_admin_qr_code_generate_slug`) that accepts a `name` query parameter and returns `{"slug": "..."}` by delegating to `Sylius\Component\Product\Generator\SlugGeneratorInterface`. The endpoint SHALL live under `/admin/*` so the admin firewall handles authentication.
+
+#### Scenario: Typing a name auto-generates a slug
+
+- **WHEN** an admin types `Summer Sale 2026` into the name field on the new-URL-QR form, and waits for the debounce
+- **THEN** the slug field updates to `summer-sale-2026`
+
+#### Scenario: Manually editing the slug suppresses further auto-generation
+
+- **WHEN** an admin types a name, then edits the slug manually (toggling the lock when editing an existing QR code)
+- **THEN** subsequent changes to the name do NOT overwrite the slug
+
+#### Scenario: Unauthenticated access to the slug endpoint is denied
+
+- **WHEN** an unauthenticated client GETs `/admin/qr-codes/generate-slug?name=...`
+- **THEN** the response status is 401 or 403 (as enforced by the admin firewall)
 
 ### Requirement: Bulk Generation of Product QR Codes from Product Grid
 
