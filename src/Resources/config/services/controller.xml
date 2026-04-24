@@ -29,5 +29,14 @@
             <argument type="service" id="setono_sylius_qr_code.repository.qr_code_scan"/>
             <argument type="service" id="twig"/>
         </service>
+
+        <service id="Setono\SyliusQRCodePlugin\Controller\BulkGenerateQRCodesAction" public="true">
+            <argument type="service" id="sylius.repository.product"/>
+            <argument type="service" id="setono_sylius_qr_code.repository.qr_code"/>
+            <argument type="service" id="Setono\SyliusQRCodePlugin\Factory\ProductRelatedQRCodeFactoryInterface"/>
+            <argument type="service" id="router"/>
+            <argument>%setono_sylius_qr_code.logo.path%</argument>
+            <argument type="service" id="doctrine"/>
+        </service>
     </services>
 </container>

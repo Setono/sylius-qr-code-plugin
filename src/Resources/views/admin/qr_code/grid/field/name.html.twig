@@ -1,0 +1,12 @@
+{# `data` is the QRCode entity (grid field `path: '.'`). Renders the name followed by a small
+   icon-only link that opens the public `/qr/{slug}` redirect URL in a new tab — discoverable
+   without eating a whole grid column. #}
+{{ data.name }}
+{% if data.slug is not null %}
+    <a href="{{ path('setono_sylius_qr_code_redirect', {slug: data.slug}) }}"
+       target="_blank"
+       rel="noopener"
+       title="{{ 'setono_sylius_qr_code.ui.redirect_url'|trans }}">
+        <i class="external alternate icon"></i>
+    </a>
+{% endif %}

@@ -1,3 +1,3 @@
 setono_sylius_qr_code:
     bulk_generate:
-        summary: 'Created %created%. Skipped %skipped% (slug already exists).'
+        summary: 'Created %created%. Skipped %skipped% (QR code with same slug already exists).'

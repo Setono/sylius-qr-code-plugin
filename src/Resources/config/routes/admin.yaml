@@ -108,3 +108,11 @@ setono_sylius_qr_code_admin_qr_code_download:
         id: '\d+'
         format: png|svg|pdf
 
+# Bulk action on the Sylius admin product grid — selected product ids arrive as `ids[]` form
+# fields (the product grid's bulk action JS appends them on confirm). Creates one
+# ProductRelatedQRCode per product whose slug isn't already taken by an existing QR code.
+setono_sylius_qr_code_admin_bulk_generate:
+    path: /qr-codes/bulk-generate
+    controller: Setono\SyliusQRCodePlugin\Controller\BulkGenerateQRCodesAction
+    methods: [POST]
+

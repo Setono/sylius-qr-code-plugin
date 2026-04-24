@@ -42,7 +42,7 @@
 - [ ] 5.2 Create `src/Resources/views/admin/qr_code/grid/field/type.html.twig` rendering a label per discriminator value
 - [ ] 5.3 Create `src/Resources/config/routes/admin.yaml` with the base resource (grid + delete + update + show) using a custom controller, plus two subtype resources (`only: ['create', 'update']`), plus stats / download / generate-slug / generate-from-product custom routes (see §8 for the last two)
 - [ ] 5.4 Create `src/Controller/QRCodeController.php` extending Sylius `ResourceController` overriding `updateAction` to redirect to the correct subtype route based on the entity class
-- [ ] 5.5 Prepend `sylius_grid.grids.sylius_admin_product.actions.bulk.generate_qr_codes` to add the bulk action to the product grid. NOTE: deferred until §12 — Sylius grid bulk actions require a template + working controller; the prepend alone 500s the product grid because Sylius looks for `@SyliusUi/Grid/BulkAction/<type>.html.twig` and there's no `default` template. This task is now bundled with §12.1–§12.3.
+- [x] 5.5 Prepend `sylius_grid.grids.sylius_admin_product.actions.bulk.generate_qr_codes` to add the bulk action to the product grid. Paired with a `sylius_grid.templates.bulk_action.qr_code_generate` prepend that maps the custom bulk-action type to the plugin's template — without that the product grid 500s on the missing `@SyliusUi/Grid/BulkAction/qr_code_generate.html.twig` lookup.
 - [ ] 5.6 Add row action `show` to the grid routing to `setono_sylius_qr_code_admin_qr_code_show` (the resource's built-in show action — no custom action needed beyond the Sylius convention); see §19 for the rendered template.
 
 ## 6. Admin Forms
@@ -106,10 +106,14 @@ Reference implementation in Sylius (mirror the structure rather than reinventing
 
 ## 12. Bulk Generation from Product Grid
 
-- [ ] 12.1 Create `src/Action/Admin/BulkGenerateAction.php` that accepts selected product IDs + modal options (embedLogo, enabled — NO channel), iterates products, uses `$product->getSlug()` as the QR slug, skips products whose slug is already taken, persists valid QR codes in a single flush, and sets a flash message `Created X. Skipped Y (slug already exists).`
-- [ ] 12.2 Add route `setono_sylius_qr_code_admin_bulk_generate` in `admin.yaml`
-- [ ] 12.3 Create `_bulkGenerateModal.html.twig` (no channel picker) and wire it into the product grid via a template override / JS opener
-- [ ] 12.4 Functional-test: 5 products all-new (5 created, 0 skipped), 3 products with 1 slug conflict (2 created, 1 skipped), zero-selection guard
+- [x] 12.1 `src/Controller/BulkGenerateQRCodesAction.php` (invokable, `public=true`, registered in `services/controller.xml`) reads `ids[]` from the POST body, iterates products via `sylius.repository.product`, derives slug from `$product->getSlug()`, skips products whose slug is null or already taken by another QR code, creates one `ProductRelatedQRCode` per survivor (`enabled=true`, `embedLogo=false`), flushes in a single transaction via `ManagerRegistry`/`ORMTrait`, flashes `setono_sylius_qr_code.bulk_generate.summary` with `%created% / %skipped%` parameters, and redirects to `sylius_admin_product_index`. Unit tests cover all four branches (happy path + collision skip, unknown product, slug-less product, empty ids → 400).
+- [x] 12.2 Route `setono_sylius_qr_code_admin_bulk_generate` at `POST /admin/qr-codes/bulk-generate` in `admin.yaml`.
+- [ ] 12.3 Options modal (`_bulkGenerateModal.html.twig`) that collects `embedLogo` and `enabled` before submitting — deferred. The current slice uses hardcoded defaults and relies on the admin layout's built-in confirmation modal (the button carries `data-bulk-action-requires-confirmation`, so Sylius's bulk-action JS appends `ids[]` and shows the generic confirm dialog before submit). The options modal replaces that interaction with a form inside a dedicated modal.
+- [ ] 12.4 Functional-test: 5 products all-new (5 created, 0 skipped), 3 products with 1 slug conflict (2 created, 1 skipped), zero-selection guard — deferred to §17.4.
+
+Also registered the custom bulk-action type:
+- Template: `src/Resources/views/admin/qr_code/Grid/BulkAction/generate.html.twig` (mirrors the shape of Sylius's built-in `@SyliusUi/Grid/BulkAction/delete.html.twig`, including `data-bulk-action-requires-confirmation` and a CSRF token).
+- Extension prepend: `sylius_grid.templates.bulk_action.qr_code_generate` → the template above. Without this mapping the product grid 500s because Sylius's default template lookup finds no `@SyliusUi/Grid/BulkAction/qr_code_generate.html.twig`.
 
 ## 13. Statistics Page
 

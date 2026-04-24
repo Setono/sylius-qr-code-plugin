@@ -1,0 +1,13 @@
+{# Template mapped via sylius_grid.templates.bulk_action.qr_code_generate — rendered once per
+   bulk action button on the product grid. Clicking the button hooks into Sylius's built-in
+   `sylius-bulk-action-require-confirmation.js`, which reuses the admin layout's
+   `#confirmation-modal` and appends the checked row ids as `ids[]` to the form before submit. #}
+
+{% set path = options.link.url|default(path(options.link.route|default('setono_sylius_qr_code_admin_bulk_generate'), options.link.parameters|default({}))) %}
+
+<form action="{{ path }}" method="post">
+    <button class="ui teal labeled icon button" type="submit" data-bulk-action-requires-confirmation disabled>
+        <i class="icon qrcode"></i> {{ action.label|default('setono_sylius_qr_code.ui.generate_qr_codes')|trans }}
+    </button>
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token('setono_sylius_qr_code_bulk_generate') }}" />
+</form>

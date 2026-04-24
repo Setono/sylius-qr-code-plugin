@@ -52,7 +52,36 @@ final class SetonoSyliusQRCodeExtension extends AbstractResourceExtension implem
 
         if (isset($bundles['SyliusGridBundle'])) {
             $this->prependGrids($container);
+            $this->prependProductGridBulkAction($container);
         }
+    }
+
+    private function prependProductGridBulkAction(ContainerBuilder $container): void
+    {
+        // Two prepends to make this work:
+        //   (1) register the plugin's template for the custom bulk-action type `qr_code_generate`
+        //       — without this, Sylius's bulk-action renderer looks up a nonexistent
+        //       `@SyliusUi/Grid/BulkAction/qr_code_generate.html.twig` and 500s the product grid.
+        //   (2) prepend the bulk action entry into the shipped `sylius_admin_product` grid.
+        $container->prependExtensionConfig('sylius_grid', [
+            'templates' => [
+                'bulk_action' => [
+                    'qr_code_generate' => '@SetonoSyliusQRCodePlugin/admin/qr_code/Grid/BulkAction/generate.html.twig',
+                ],
+            ],
+            'grids' => [
+                'sylius_admin_product' => [
+                    'actions' => [
+                        'bulk' => [
+                            'generate_qr_codes' => [
+                                'type' => 'qr_code_generate',
+                                'label' => 'setono_sylius_qr_code.ui.generate_qr_codes',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
     }
 
     private function prependGrids(ContainerBuilder $container): void
@@ -71,9 +100,16 @@ final class SetonoSyliusQRCodeExtension extends AbstractResourceExtension implem
                     ],
                     'fields' => [
                         'name' => [
-                            'type' => 'string',
+                            'type' => 'twig',
                             'label' => 'setono_sylius_qr_code.ui.name',
-                            'sortable' => true,
+                            // Hand the whole entity to the template so it can render the name
+                            // AND a trailing icon link to the public /qr/{slug} redirect URL.
+                            // Sort still points at `name` so the column header works normally.
+                            'path' => '.',
+                            'sortable' => 'name',
+                            'options' => [
+                                'template' => '@SetonoSyliusQRCodePlugin/admin/qr_code/grid/field/name.html.twig',
+                            ],
                         ],
                         'slug' => [
                             'type' => 'string',
