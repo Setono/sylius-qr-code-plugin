@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Setono\SyliusQRCodePlugin\Tests\Integration\Repository;
+namespace Setono\SyliusQRCodePlugin\Tests\Functional\Repository;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;

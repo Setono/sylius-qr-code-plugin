@@ -125,8 +125,9 @@ Tests are split by type, mirroring the source tree inside each bucket:
 tests/
 ├── Application/          # test Symfony app used by functional tests (NOT a test bucket)
 ├── Entity/QRCode/        # app-level Doctrine entities for the test app (STI concretes) — NOT tests
-├── Functional/           # end-to-end tests that boot the test app (HTTP layer, admin CRUD, etc.)
-├── Integration/          # tests that hit real infra (Doctrine against SQLite/MySQL, container, filesystem)
+├── Functional/           # tests that boot the test app — anything that needs a real container,
+│                         # EntityManager, or HTTP stack lives here (admin CRUD, redirect endpoint,
+│                         # repository queries against MySQL, etc.)
 ├── PHPStan/              # loaders used by phpstan.neon (console_application.php, object_manager.php) — NOT tests
 └── Unit/                 # pure unit tests, no container, no DB; mirror src/ structure underneath
     └── DependencyInjection/
@@ -134,9 +135,8 @@ tests/
 
 Conventions:
 - **Unit tests go in `tests/Unit/<MirroredSourcePath>/<ClassName>Test.php`** with namespace `Setono\SyliusQRCodePlugin\Tests\Unit\<MirroredSourcePath>`. Example: `src/Resolver/TargetUrlResolver.php` → `tests/Unit/Resolver/TargetUrlResolverTest.php`.
-- **Integration tests go in `tests/Integration/...`** with namespace `Setono\SyliusQRCodePlugin\Tests\Integration\...`. Use when a real EntityManager or container is required.
-- **Functional tests go in `tests/Functional/...`** with namespace `Setono\SyliusQRCodePlugin\Tests\Functional\...`. Boot the test application kernel.
-- PHPUnit exposes three testsuites named `unit`, `integration`, `functional` — run one with `vendor/bin/phpunit --testsuite unit`.
+- **Functional tests go in `tests/Functional/...`** with namespace `Setono\SyliusQRCodePlugin\Tests\Functional\...`. Boot the test application kernel. This is the single bucket for any test that needs a real container, EntityManager, or HTTP request — there is no separate `Integration` bucket.
+- PHPUnit exposes two testsuites named `unit` and `functional` — run one with `vendor/bin/phpunit --testsuite unit`.
 - Empty testsuite directories are tracked with `.gitkeep` files.
 
 #### Database-backed tests with dama/doctrine-test-bundle
