@@ -47,7 +47,7 @@ class QRCodeScanRepository extends EntityRepository implements QRCodeScanReposit
     {
         /** @var list<array{bucket: string, count: int|string}> $rows */
         $rows = $this->createQueryBuilder('s')
-            ->select("SUBSTRING(s.scannedAt, 1, 10) AS bucket, COUNT(s.id) AS count")
+            ->select('SUBSTRING(s.scannedAt, 1, 10) AS bucket, COUNT(s.id) AS count')
             ->andWhere('s.qrCode = :qrCode')
             ->andWhere('s.scannedAt >= :from')
             ->andWhere('s.scannedAt < :until')

@@ -161,6 +161,7 @@ final class BulkGenerateQRCodesActionTest extends TestCase
 
     /**
      * @test
+     *
      * @dataProvider logoPathCases
      */
     public function it_sets_embed_logo_based_on_whether_a_logo_path_is_configured(?string $logoPath, bool $expectedEmbedLogo): void

@@ -24,6 +24,7 @@ final class QRCodeGeneratorTest extends TestCase
 
     /**
      * @test
+     *
      * @dataProvider formatMimeTypes
      */
     public function it_emits_the_expected_mime_type_for_each_supported_format(string $format, string $expectedMime): void

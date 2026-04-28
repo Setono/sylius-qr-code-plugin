@@ -99,7 +99,7 @@ final class BulkGenerateQRCodesAction
         }
 
         $session = $request->getSession();
-        if($session instanceof FlashBagAwareSessionInterface) {
+        if ($session instanceof FlashBagAwareSessionInterface) {
             $session->getFlashBag()->add('success', [
                 'message' => 'setono_sylius_qr_code.bulk_generate.summary',
                 'parameters' => ['%created%' => $created, '%skipped%' => $skipped],

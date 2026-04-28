@@ -89,5 +89,4 @@ final class StatsActionTest extends TestCase
         $this->expectException(NotFoundHttpException::class);
         $action(999);
     }
-
 }
