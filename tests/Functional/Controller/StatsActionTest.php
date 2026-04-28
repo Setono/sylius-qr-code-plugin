@@ -16,6 +16,10 @@ final class StatsActionTest extends AdminWebTestCase
      */
     public function it_renders_the_stats_page_for_an_existing_qr_code(): void
     {
+        // Surface any rendering exception directly so failures show the real cause instead of
+        // a generic "expected 200, got 500".
+        $this->client->catchExceptions(false);
+
         $qrCode = $this->persistQRCode('stats-target');
 
         $this->client->request('GET', sprintf('/admin/qr-codes/%d/stats', $qrCode->getId()));
@@ -32,6 +36,8 @@ final class StatsActionTest extends AdminWebTestCase
      */
     public function it_includes_the_total_scan_count_in_the_rendered_page(): void
     {
+        $this->client->catchExceptions(false);
+
         $qrCode = $this->persistQRCode('counted');
         $this->persistScan($qrCode, '2026-04-25 09:00:00');
         $this->persistScan($qrCode, '2026-04-26 09:00:00');
