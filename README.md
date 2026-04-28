@@ -260,10 +260,10 @@ subtypes that aren't first-class plugin resources.
 [ico-version]: https://poser.pugx.org/setono/sylius-qr-code-plugin/v/stable
 [ico-license]: https://poser.pugx.org/setono/sylius-qr-code-plugin/license
 [ico-github-actions]: https://github.com/Setono/sylius-qr-code-plugin/workflows/build/badge.svg
-[ico-code-coverage]: https://codecov.io/gh/Setono/sylius-qr-code-plugin/branch/1.14.x/graph/badge.svg
-[ico-infection]: https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FSetono%2Fsylius-qr-code-plugin%2F1.14.x
+[ico-code-coverage]: https://codecov.io/gh/Setono/sylius-qr-code-plugin/branch/master/graph/badge.svg
+[ico-infection]: https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FSetono%2Fsylius-qr-code-plugin%2Fmaster
 
 [link-packagist]: https://packagist.org/packages/setono/sylius-qr-code-plugin
 [link-github-actions]: https://github.com/Setono/sylius-qr-code-plugin/actions
 [link-code-coverage]: https://codecov.io/gh/Setono/sylius-qr-code-plugin
-[link-infection]: https://dashboard.stryker-mutator.io/reports/github.com/Setono/sylius-qr-code-plugin/1.14.x
+[link-infection]: https://dashboard.stryker-mutator.io/reports/github.com/Setono/sylius-qr-code-plugin/master
