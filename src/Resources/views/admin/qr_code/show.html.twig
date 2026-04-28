@@ -121,9 +121,22 @@
             <a class="ui primary button" href="{{ path('setono_sylius_qr_code_admin_qr_code_update', {id: qr_code.id}) }}">
                 <i class="edit icon"></i> {{ 'sylius.ui.edit'|trans }}
             </a>
-            <a class="ui button" href="{{ path('setono_sylius_qr_code_admin_qr_code_download', {id: qr_code.id}) }}">
-                <i class="download icon"></i> {{ 'setono_sylius_qr_code.ui.download'|trans }}
-            </a>
+            <div class="ui floating dropdown button">
+                <i class="download icon"></i>
+                <span class="text">{{ 'setono_sylius_qr_code.ui.download'|trans }}</span>
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    <a class="item" href="{{ path('setono_sylius_qr_code_admin_qr_code_download', {id: qr_code.id, format: 'png'}) }}">
+                        <i class="image icon"></i> PNG
+                    </a>
+                    <a class="item" href="{{ path('setono_sylius_qr_code_admin_qr_code_download', {id: qr_code.id, format: 'svg'}) }}">
+                        <i class="image outline icon"></i> SVG
+                    </a>
+                    <a class="item" href="{{ path('setono_sylius_qr_code_admin_qr_code_download', {id: qr_code.id, format: 'pdf'}) }}">
+                        <i class="file pdf icon"></i> PDF
+                    </a>
+                </div>
+            </div>
             <a class="ui button" href="{{ path('setono_sylius_qr_code_admin_qr_code_stats', {id: qr_code.id}) }}">
                 <i class="chart bar icon"></i> {{ 'setono_sylius_qr_code.ui.see_stats'|trans }}
             </a>

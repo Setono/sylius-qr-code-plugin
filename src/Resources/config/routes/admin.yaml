@@ -50,6 +50,8 @@ setono_sylius_qr_code_admin_product_related_qr_code:
                 # "QR codes" and navigates back to the unified grid rather than the subtype's
                 # own index route (which just redirects to the grid anyway).
                 breadcrumb: setono_sylius_qr_code.ui.qr_codes
+                templates:
+                    form: "@SetonoSyliusQRCodePlugin/admin/qr_code/_form.html.twig"
                 index:
                     route:
                         name: setono_sylius_qr_code_admin_qr_code_index
@@ -75,6 +77,8 @@ setono_sylius_qr_code_admin_target_url_qr_code:
             all:
                 subheader: setono_sylius_qr_code.ui.url_qr_code
                 breadcrumb: setono_sylius_qr_code.ui.qr_codes
+                templates:
+                    form: "@SetonoSyliusQRCodePlugin/admin/qr_code/_form.html.twig"
                 index:
                     route:
                         name: setono_sylius_qr_code_admin_qr_code_index

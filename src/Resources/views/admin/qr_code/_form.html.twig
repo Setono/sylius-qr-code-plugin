@@ -1,0 +1,47 @@
+{#
+    Shared form partial for both QR code subtypes (product-related + target URL).
+    Sylius's @SyliusAdmin/Crud/Update/_content.html.twig and the matching create
+    template render this template instead of `form_widget(form)` when the resource
+    config sets `vars.templates.form`. Mirrors the Sylius admin convention seen in
+    Customer/Form/_columns + _details: each section is its own `ui segment` with a
+    dividing header, stacked vertically within a stackable column grid.
+#}
+
+<div class="ui three column stackable grid">
+    <div class="column">
+        <div class="ui segment">
+            <h4 class="ui dividing header">{{ 'setono_sylius_qr_code.ui.section.basics'|trans }}</h4>
+            {{ form_row(form.name) }}
+            {{ form_row(form.slug) }}
+            {% if form.product is defined %}
+                {{ form_row(form.product) }}
+            {% endif %}
+            {% if form.targetUrl is defined %}
+                {{ form_row(form.targetUrl) }}
+            {% endif %}
+            {{ form_row(form.enabled) }}
+        </div>
+    </div>
+
+    <div class="column">
+        <div class="ui segment">
+            <h4 class="ui dividing header">{{ 'setono_sylius_qr_code.ui.section.appearance'|trans }}</h4>
+            {{ form_row(form.embedLogo) }}
+            {{ form_row(form.errorCorrectionLevel) }}
+        </div>
+
+        <div class="ui segment">
+            <h4 class="ui dividing header">{{ 'setono_sylius_qr_code.ui.section.advanced'|trans }}</h4>
+            {{ form_row(form.redirectType) }}
+        </div>
+    </div>
+
+    <div class="column">
+        <div class="ui segment">
+            <h4 class="ui dividing header">{{ 'setono_sylius_qr_code.ui.section.tracking'|trans }}</h4>
+            {{ form_row(form.utmSource) }}
+            {{ form_row(form.utmMedium) }}
+            {{ form_row(form.utmCampaign) }}
+        </div>
+    </div>
+</div>

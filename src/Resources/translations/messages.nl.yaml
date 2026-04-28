@@ -42,3 +42,8 @@ setono_sylius_qr_code:
         date_time: Date / time
         ip_address: IP address
         user_agent: User agent
+        section:
+            basics: Basics
+            appearance: Appearance
+            tracking: Tracking
+            advanced: Advanced

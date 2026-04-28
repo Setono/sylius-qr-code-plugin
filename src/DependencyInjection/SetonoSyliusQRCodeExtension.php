@@ -87,6 +87,14 @@ final class SetonoSyliusQRCodeExtension extends AbstractResourceExtension implem
     private function prependGrids(ContainerBuilder $container): void
     {
         $container->prependExtensionConfig('sylius_grid', [
+            // Custom action type: behaves like Sylius's built-in `links` (a dropdown
+            // of sub-links per row) but the template adds a `dropdown icon` caret so
+            // the button visually signals that it opens a menu.
+            'templates' => [
+                'action' => [
+                    'qr_code_download' => '@SetonoSyliusQRCodePlugin/admin/qr_code/grid/action/download.html.twig',
+                ],
+            ],
             'grids' => [
                 'setono_sylius_qr_code_admin_qr_code' => [
                     'driver' => [
@@ -205,14 +213,37 @@ final class SetonoSyliusQRCodeExtension extends AbstractResourceExtension implem
                                 ],
                             ],
                             'download' => [
-                                'type' => 'default',
+                                'type' => 'qr_code_download',
                                 'label' => 'setono_sylius_qr_code.ui.download',
-                                'icon' => 'download',
                                 'options' => [
-                                    'link' => [
-                                        'route' => 'setono_sylius_qr_code_admin_qr_code_download',
-                                        'parameters' => [
-                                            'id' => 'resource.id',
+                                    'icon' => 'download',
+                                    'links' => [
+                                        'png' => [
+                                            'label' => 'PNG',
+                                            'icon' => 'image',
+                                            'route' => 'setono_sylius_qr_code_admin_qr_code_download',
+                                            'parameters' => [
+                                                'id' => 'resource.id',
+                                                'format' => 'png',
+                                            ],
+                                        ],
+                                        'svg' => [
+                                            'label' => 'SVG',
+                                            'icon' => 'image outline',
+                                            'route' => 'setono_sylius_qr_code_admin_qr_code_download',
+                                            'parameters' => [
+                                                'id' => 'resource.id',
+                                                'format' => 'svg',
+                                            ],
+                                        ],
+                                        'pdf' => [
+                                            'label' => 'PDF',
+                                            'icon' => 'file pdf',
+                                            'route' => 'setono_sylius_qr_code_admin_qr_code_download',
+                                            'parameters' => [
+                                                'id' => 'resource.id',
+                                                'format' => 'pdf',
+                                            ],
                                         ],
                                     ],
                                 ],
