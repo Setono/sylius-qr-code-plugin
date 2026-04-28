@@ -106,13 +106,14 @@ When a resource needs a custom factory (to seed defaults, derive a slug, snapsho
 - Tests that previously expected `\AssertionError` must expect `\InvalidArgumentException` instead.
 
 ### Testing Requirements
-- **Aspire to 100% code coverage.** Any class under `src/` (including entities, form types, actions, services) should have a matching test class. If a line is genuinely untestable — e.g. a defensive `throw` for a case the type system already rules out, or framework glue with no meaningful seam — document that explicitly in the test or exclude it from coverage with a reason. "This is boilerplate" is not a reason to skip coverage; plain accessors on entities still get tested.
-- Write unit tests for all new functionality
+- **Aspire to ~100% code coverage.** Any class under `src/` (including entities, form types, actions, services) should have a matching test class. If a line is genuinely untestable — e.g. a defensive `throw` for a case the type system already rules out, or framework glue with no meaningful seam — document that explicitly in the test or exclude it from coverage with a reason. "This is boilerplate" is not a reason to skip coverage; plain accessors on entities still get tested.
+- **New features MUST ship with tests.** Every new feature requires unit tests, and additionally functional tests when it makes sense (HTTP endpoints, admin CRUD, full request/response flows). Pure logic only needs unit tests; framework-integrated behaviour gets both. A feature is not done until the tests are in place.
 - Follow the BDD-style naming convention for test methods (e.g., `it_should_do_something_when_condition_is_met`)
 - **MUST use Prophecy for mocking** - Use the `ProphecyTrait` and `$this->prophesize()` for all mocks, NOT PHPUnit's `$this->createMock()`
-- **Form testing** - Use Symfony's best practices for form testing as documented at https://symfony.com/doc/current/form/unit_testing.html
+- **Form testing** - Use Symfony's best practices for form testing as documented at https://symfony.com/doc/6.4/form/unit_testing.html
   - Extend `Symfony\Component\Form\Test\TypeTestCase` for form type tests
   - Use `$this->factory->create()` to create form instances
+  - When a form depends on a custom child type that needs collaborators (e.g. Sylius's `ProductAutocompleteChoiceType`), register a stub via a `PreloadedExtension` returned from `getExtensions()` — do NOT try to instantiate the real child type with mocked services
   - Test form submission, validation, and data transformation
 - Ensure tests are isolated and don't depend on external state
 - Test both happy path and edge cases
