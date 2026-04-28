@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Setono\SyliusQRCodePlugin\Model;
 
+use function Symfony\Component\String\u;
+
 class QRCodeScan implements QRCodeScanInterface
 {
     public const USER_AGENT_MAX_LENGTH = 512;
@@ -60,6 +62,6 @@ class QRCodeScan implements QRCodeScanInterface
 
     public function setUserAgent(?string $userAgent): void
     {
-        $this->userAgent = null === $userAgent ? null : mb_substr($userAgent, 0, self::USER_AGENT_MAX_LENGTH);
+        $this->userAgent = null === $userAgent ? null : u($userAgent)->truncate(self::USER_AGENT_MAX_LENGTH)->toString();
     }
 }
