@@ -1,0 +1,5 @@
+doctrine:
+    dbal:
+        # dama/doctrine-test-bundle requires savepoints so the per-test transaction
+        # can be rolled back even when the system under test commits its own transaction.
+        use_savepoints: true

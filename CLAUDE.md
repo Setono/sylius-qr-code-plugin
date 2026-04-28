@@ -139,6 +139,31 @@ Conventions:
 - PHPUnit exposes three testsuites named `unit`, `integration`, `functional` — run one with `vendor/bin/phpunit --testsuite unit`.
 - Empty testsuite directories are tracked with `.gitkeep` files.
 
+#### Database-backed tests with dama/doctrine-test-bundle
+Integration and functional tests that hit Doctrine use [`dama/doctrine-test-bundle`](https://symfony.com/doc/6.4/testing.html#configuring-a-database-for-tests) so each test runs inside a transaction that is rolled back at teardown — tests stay isolated without truncate/reset cycles.
+
+Wiring (already in place; do not duplicate):
+- The bundle is registered for `test` / `test_cached` envs in `tests/Application/config/bundles.php`.
+- The PHPUnit listener extension is enabled in `phpunit.xml.dist` under `<extensions>`.
+- `tests/Application/config/packages/test/doctrine.yaml` enables `dbal.use_savepoints: true` — the bundle requires savepoints so the per-test transaction survives nested transactions opened by the system under test.
+
+Workflow for the test database (run from the project root):
+```bash
+tests/Application/bin/console --env=test doctrine:database:create --if-not-exists
+tests/Application/bin/console --env=test doctrine:schema:create
+```
+After ORM mapping changes, drop and recreate the schema rather than relying on migrations in tests:
+```bash
+tests/Application/bin/console --env=test doctrine:schema:drop --force --full-database
+tests/Application/bin/console --env=test doctrine:schema:create
+```
+
+When writing a database-backed test:
+- Extend `Symfony\Bundle\FrameworkBundle\Test\KernelTestCase` and call `self::bootKernel()` in `setUp()`.
+- Pull the repository or entity manager from `self::getContainer()` — do NOT instantiate them by hand.
+- Persist + flush directly; do not wrap your own transaction around the test (dama is already managing one).
+- For time-sensitive fields (e.g. `scannedAt`), set the value explicitly on the entity before flush so the test asserts deterministic boundaries — Gedmo's create-listener would otherwise stamp `now`.
+
 ## Development Commands
 
 Based on the `composer.json` scripts section:
