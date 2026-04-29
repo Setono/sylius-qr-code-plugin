@@ -145,7 +145,9 @@ setono_sylius_qr_code:
 
     logo:
         # Optional path to a logo image embedded in the center of the QR code when the
-        # `embedLogo` flag is set on a QR code. Leave null to disable.
+        # `embedLogo` flag is set on a QR code. Leave null to disable. When null, the
+        # admin form does not render the `embedLogo` checkbox at all — the option is
+        # tied to a configured logo and disappears when there is nothing to embed.
         path: null
         # Logo size as a percentage (0–100) of the QR code's inner area.
         size: 60

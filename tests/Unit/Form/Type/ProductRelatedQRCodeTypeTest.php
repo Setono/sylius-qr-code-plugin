@@ -20,6 +20,8 @@ final class ProductRelatedQRCodeTypeTest extends TypeTestCase
 {
     use ProphecyTrait;
 
+    private const LOGO_PATH = '/var/logos/qr.png';
+
     /**
      * @test
      */
@@ -138,6 +140,21 @@ final class ProductRelatedQRCodeTypeTest extends TypeTestCase
     /**
      * @test
      */
+    public function it_omits_the_embed_logo_field_when_no_logo_path_is_configured(): void
+    {
+        $factory = $this->buildFactoryWithoutLogo();
+
+        $form = $factory->create(ProductRelatedQRCodeType::class, new ProductRelatedQRCode());
+
+        self::assertFalse(
+            $form->has('embedLogo'),
+            'embedLogo must not be rendered when setono_sylius_qr_code.logo.path is null',
+        );
+    }
+
+    /**
+     * @test
+     */
     public function it_uses_the_expected_block_prefix(): void
     {
         $type = new ProductRelatedQRCodeType(ProductRelatedQRCode::class);
@@ -173,10 +190,25 @@ final class ProductRelatedQRCodeTypeTest extends TypeTestCase
         $registry->get('sylius.product')->willReturn($this->productRepository->reveal());
 
         return [
-            new ProductRelatedQRCodeType(ProductRelatedQRCode::class),
+            new ProductRelatedQRCodeType(ProductRelatedQRCode::class, [], self::LOGO_PATH),
             new ProductAutocompleteChoiceType(),
             new ResourceAutocompleteChoiceType($registry->reveal()),
         ];
+    }
+
+    private function buildFactoryWithoutLogo(): \Symfony\Component\Form\FormFactoryInterface
+    {
+        $registry = $this->prophesize(ServiceRegistryInterface::class);
+        $registry->get('sylius.product')->willReturn(
+            $this->prophesize(RepositoryInterface::class)->reveal(),
+        );
+
+        return \Symfony\Component\Form\Forms::createFormFactoryBuilder()
+            ->addType(new ProductRelatedQRCodeType(ProductRelatedQRCode::class, [], null))
+            ->addType(new ProductAutocompleteChoiceType())
+            ->addType(new ResourceAutocompleteChoiceType($registry->reveal()))
+            ->getFormFactory()
+        ;
     }
 
     /**

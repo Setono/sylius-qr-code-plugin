@@ -15,9 +15,14 @@ use Symfony\Component\Form\FormEvents;
 
 /**
  * Shared base form type for the two QR code subtypes. Holds fields common to both
- * (name, slug, embedLogo, enabled, and the advanced UTM/error-correction fields) and
- * installs a submit listener that resolves the UI-only `errorCorrectionLevel = auto`
- * value to `H` (logo embedded) or `M` (no logo) before the entity is flushed.
+ * (name, slug, embedLogo when a logo is configured, enabled, and the advanced UTM /
+ * error-correction fields) and installs a submit listener that resolves the UI-only
+ * `errorCorrectionLevel = auto` value to `H` (logo embedded) or `M` (no logo) before
+ * the entity is flushed.
+ *
+ * The `embedLogo` field is rendered only when `setono_sylius_qr_code.logo.path` is set
+ * — toggling it without a configured logo would silently produce a logo-less QR code,
+ * so we hide the option entirely instead.
  */
 abstract class QRCodeType extends AbstractResourceType
 {
@@ -27,8 +32,21 @@ abstract class QRCodeType extends AbstractResourceType
      */
     public const ERROR_CORRECTION_LEVEL_AUTO = 'auto';
 
+    /**
+     * @param string[] $validationGroups
+     */
+    public function __construct(
+        string $dataClass,
+        array $validationGroups = [],
+        private readonly ?string $logoPath = null,
+    ) {
+        parent::__construct($dataClass, $validationGroups);
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $logoConfigured = null !== $this->logoPath && '' !== $this->logoPath;
+
         $builder
             ->add('name', TextType::class, [
                 'label' => 'setono_sylius_qr_code.ui.name',
@@ -36,10 +54,16 @@ abstract class QRCodeType extends AbstractResourceType
             ->add('slug', TextType::class, [
                 'label' => 'setono_sylius_qr_code.ui.slug',
             ])
-            ->add('embedLogo', CheckboxType::class, [
+        ;
+
+        if ($logoConfigured) {
+            $builder->add('embedLogo', CheckboxType::class, [
                 'label' => 'setono_sylius_qr_code.ui.embed_logo',
                 'required' => false,
-            ])
+            ]);
+        }
+
+        $builder
             ->add('enabled', CheckboxType::class, [
                 'label' => 'setono_sylius_qr_code.ui.enabled',
                 'required' => false,
@@ -68,7 +92,7 @@ abstract class QRCodeType extends AbstractResourceType
             ])
         ;
 
-        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event): void {
+        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) use ($logoConfigured): void {
             $data = $event->getData();
             if (!$data instanceof QRCodeInterface) {
                 return;
@@ -78,8 +102,13 @@ abstract class QRCodeType extends AbstractResourceType
                 return;
             }
 
+            // Treat embedLogo as effectively false when no logo is configured — otherwise we
+            // would resolve the auto level to `H` and produce a denser, lower-capacity code
+            // than necessary even though the generator falls back to no-logo at render time.
+            $shouldEmbedLogo = $logoConfigured && $data->isEmbedLogo();
+
             $data->setErrorCorrectionLevel(
-                $data->isEmbedLogo()
+                $shouldEmbedLogo
                     ? QRCodeInterface::ERROR_CORRECTION_LEVEL_HIGH
                     : QRCodeInterface::ERROR_CORRECTION_LEVEL_MEDIUM,
             );

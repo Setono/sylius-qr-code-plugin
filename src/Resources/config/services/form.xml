@@ -10,6 +10,7 @@
             <argument type="collection">
                 <argument>setono_sylius_qr_code</argument>
             </argument>
+            <argument>%setono_sylius_qr_code.logo.path%</argument>
             <tag name="form.type"/>
         </service>
 
@@ -18,6 +19,7 @@
             <argument type="collection">
                 <argument>setono_sylius_qr_code</argument>
             </argument>
+            <argument>%setono_sylius_qr_code.logo.path%</argument>
             <tag name="form.type"/>
         </service>
     </services>

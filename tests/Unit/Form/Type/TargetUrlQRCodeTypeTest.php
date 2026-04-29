@@ -12,6 +12,8 @@ use Symfony\Component\Form\Test\TypeTestCase;
 
 final class TargetUrlQRCodeTypeTest extends TypeTestCase
 {
+    private const LOGO_PATH = '/var/logos/qr.png';
+
     /**
      * @test
      */
@@ -131,6 +133,51 @@ final class TargetUrlQRCodeTypeTest extends TypeTestCase
     /**
      * @test
      */
+    public function it_omits_the_embed_logo_field_when_no_logo_path_is_configured(): void
+    {
+        $factory = $this->buildFactoryWithoutLogo();
+
+        $form = $factory->create(TargetUrlQRCodeType::class, new TargetUrlQRCode());
+
+        self::assertFalse(
+            $form->has('embedLogo'),
+            'embedLogo must not be rendered when setono_sylius_qr_code.logo.path is null',
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_resolves_auto_error_correction_to_medium_even_when_entity_says_embed_logo_but_no_logo_is_configured(): void
+    {
+        // Even if a previously-saved entity has embedLogo=true, an admin editing it under a
+        // deployment with no configured logo should not pay the cost of error-correction H —
+        // the generator would silently skip the logo at render time anyway.
+        $factory = $this->buildFactoryWithoutLogo();
+
+        $entity = new TargetUrlQRCode();
+        $entity->setEmbedLogo(true);
+
+        $form = $factory->create(TargetUrlQRCodeType::class, $entity);
+
+        $form->submit([
+            'name' => 'Test',
+            'slug' => 'test',
+            'enabled' => '1',
+            'errorCorrectionLevel' => QRCodeType::ERROR_CORRECTION_LEVEL_AUTO,
+            'utmSource' => null,
+            'utmMedium' => null,
+            'utmCampaign' => null,
+            'targetUrl' => 'https://example.com',
+        ]);
+
+        self::assertTrue($form->isValid());
+        self::assertSame(QRCodeInterface::ERROR_CORRECTION_LEVEL_MEDIUM, $entity->getErrorCorrectionLevel());
+    }
+
+    /**
+     * @test
+     */
     public function it_uses_the_expected_block_prefix(): void
     {
         $type = new TargetUrlQRCodeType(TargetUrlQRCode::class);
@@ -153,9 +200,20 @@ final class TargetUrlQRCodeTypeTest extends TypeTestCase
      */
     protected function getTypes(): array
     {
+        // Default factory used by tests in this case has a logo path configured — that's the
+        // typical production setup. The "no logo" variant is built ad-hoc in the relevant tests
+        // via {@see self::buildFactoryWithoutLogo()}.
         return [
-            new TargetUrlQRCodeType(TargetUrlQRCode::class),
+            new TargetUrlQRCodeType(TargetUrlQRCode::class, [], self::LOGO_PATH),
         ];
+    }
+
+    private function buildFactoryWithoutLogo(): \Symfony\Component\Form\FormFactoryInterface
+    {
+        return \Symfony\Component\Form\Forms::createFormFactoryBuilder()
+            ->addType(new TargetUrlQRCodeType(TargetUrlQRCode::class, [], null))
+            ->getFormFactory()
+        ;
     }
 
     /**
