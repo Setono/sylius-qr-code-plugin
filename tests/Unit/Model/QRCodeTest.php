@@ -23,7 +23,6 @@ final class QRCodeTest extends TestCase
         self::assertNull($qrCode->getId());
         self::assertNull($qrCode->getName());
         self::assertNull($qrCode->getSlug());
-        self::assertSame(307, $qrCode->getRedirectType());
         self::assertTrue($qrCode->isEnabled());
         self::assertFalse($qrCode->isEmbedLogo());
         self::assertSame(QRCodeInterface::ERROR_CORRECTION_LEVEL_MEDIUM, $qrCode->getErrorCorrectionLevel());
@@ -67,17 +66,6 @@ final class QRCodeTest extends TestCase
         $qrCode->setSlug('summer-sale');
 
         self::assertSame('summer-sale', $qrCode->getSlug());
-    }
-
-    /**
-     * @test
-     */
-    public function it_exposes_the_redirect_type_via_accessor(): void
-    {
-        $qrCode = new QRCode();
-        $qrCode->setRedirectType(301);
-
-        self::assertSame(301, $qrCode->getRedirectType());
     }
 
     /**

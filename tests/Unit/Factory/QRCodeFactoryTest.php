@@ -33,7 +33,6 @@ final class QRCodeFactoryTest extends TestCase
 
         $factory = $this->concreteStub(
             $decoratedFactory->reveal(),
-            defaultRedirectType: 302,
             defaultUtmSource: 'qr',
             defaultUtmMedium: 'qrcode',
         );
@@ -41,7 +40,6 @@ final class QRCodeFactoryTest extends TestCase
         $result = $factory->createNew();
 
         self::assertSame($entity, $result);
-        self::assertSame(302, $result->getRedirectType());
         self::assertSame('qr', $result->getUtmSource());
         self::assertSame('qrcode', $result->getUtmMedium());
     }
@@ -58,7 +56,6 @@ final class QRCodeFactoryTest extends TestCase
 
         $factory = $this->concreteStub(
             $decoratedFactory->reveal(),
-            defaultRedirectType: 307,
             defaultUtmSource: null,
             defaultUtmMedium: null,
         );
@@ -67,7 +64,6 @@ final class QRCodeFactoryTest extends TestCase
 
         self::assertNull($result->getUtmSource());
         self::assertNull($result->getUtmMedium());
-        self::assertSame(307, $result->getRedirectType());
     }
 
     /**
@@ -82,7 +78,6 @@ final class QRCodeFactoryTest extends TestCase
 
         $factory = $this->concreteStub(
             $decoratedFactory->reveal(),
-            defaultRedirectType: 307,
             defaultUtmSource: 'qr',
             defaultUtmMedium: 'qrcode',
         );
@@ -100,7 +95,6 @@ final class QRCodeFactoryTest extends TestCase
 
         $factory = $this->concreteStub(
             $decoratedFactory->reveal(),
-            defaultRedirectType: 307,
             defaultUtmSource: null,
             defaultUtmMedium: null,
         );
@@ -115,11 +109,10 @@ final class QRCodeFactoryTest extends TestCase
      */
     private function concreteStub(
         FactoryInterface $decoratedFactory,
-        int $defaultRedirectType,
         ?string $defaultUtmSource,
         ?string $defaultUtmMedium,
     ): QRCodeFactory {
-        return new class($decoratedFactory, $defaultRedirectType, $defaultUtmSource, $defaultUtmMedium) extends QRCodeFactory {
+        return new class($decoratedFactory, $defaultUtmSource, $defaultUtmMedium) extends QRCodeFactory {
         };
     }
 }

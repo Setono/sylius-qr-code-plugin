@@ -19,6 +19,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * for downstream listeners (including the plugin's own ScanTracker), and redirects to the
  * resolved target URL with UTM parameters appended.
  *
+ * The HTTP status code for the redirect is plugin-wide configuration (`setono_sylius_qr_code.redirect_type`,
+ * default `302`) rather than per-QR. This avoids the foot-gun where a permanent redirect (301) gets
+ * cached aggressively by browsers and crawlers — once issued, you cannot repoint the slug without
+ * users hitting the stale target. If your deployment has a different policy, override the parameter.
+ *
  * Scan-driven side effects live behind the `QRCodeScannedEvent` dispatch — adopting apps can
  * add their own tracking by registering a listener on that event; the plugin ships a built-in
  * subscriber that persists a `QRCodeScan` row. Listener exceptions are caught and logged so a
@@ -31,6 +36,7 @@ final class RedirectAction
         private readonly TargetUrlResolverInterface $targetUrlResolver,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LoggerInterface $logger,
+        private readonly int $redirectType,
     ) {
     }
 
@@ -60,6 +66,6 @@ final class RedirectAction
             ]);
         }
 
-        return new RedirectResponse((string) $targetUrl, $qrCode->getRedirectType());
+        return new RedirectResponse((string) $targetUrl, $this->redirectType);
     }
 }

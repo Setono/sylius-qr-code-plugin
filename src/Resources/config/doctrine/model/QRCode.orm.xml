@@ -33,7 +33,6 @@
 
         <field name="name" type="string" length="255"/>
         <field name="slug" type="string" length="100" unique="true"/>
-        <field name="redirectType" type="integer" column="redirect_type"/>
         <field name="enabled" type="boolean"/>
         <field name="embedLogo" type="boolean" column="embed_logo"/>
         <field name="errorCorrectionLevel" type="string" length="1" column="error_correction_level"/>

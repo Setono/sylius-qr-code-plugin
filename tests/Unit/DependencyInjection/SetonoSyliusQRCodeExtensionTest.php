@@ -23,7 +23,7 @@ final class SetonoSyliusQRCodeExtensionTest extends AbstractExtensionTestCase
     {
         $this->load();
 
-        $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.redirect_type', 307);
+        $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.redirect_type', 302);
         $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.utm.source', 'qr');
         $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.utm.medium', 'qrcode');
         $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.logo.path', null);
@@ -36,12 +36,12 @@ final class SetonoSyliusQRCodeExtensionTest extends AbstractExtensionTestCase
     public function it_overrides_defaults_with_explicit_config(): void
     {
         $this->load([
-            'redirect_type' => 302,
+            'redirect_type' => 301,
             'utm' => ['source' => 'custom-src', 'medium' => 'custom-med'],
             'logo' => ['path' => '/tmp/logo.png', 'size' => 80],
         ]);
 
-        $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.redirect_type', 302);
+        $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.redirect_type', 301);
         $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.utm.source', 'custom-src');
         $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.utm.medium', 'custom-med');
         $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.logo.path', '/tmp/logo.png');

@@ -19,7 +19,6 @@ abstract class QRCodeFactory implements QRCodeFactoryInterface
      */
     public function __construct(
         protected readonly FactoryInterface $decoratedFactory,
-        private readonly int $defaultRedirectType,
         private readonly ?string $defaultUtmSource,
         private readonly ?string $defaultUtmMedium,
     ) {
@@ -30,7 +29,6 @@ abstract class QRCodeFactory implements QRCodeFactoryInterface
         $qrCode = $this->decoratedFactory->createNew();
         Assert::isInstanceOf($qrCode, QRCodeInterface::class);
 
-        $qrCode->setRedirectType($this->defaultRedirectType);
         $qrCode->setUtmSource($this->defaultUtmSource);
         $qrCode->setUtmMedium($this->defaultUtmMedium);
 

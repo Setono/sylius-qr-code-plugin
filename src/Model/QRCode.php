@@ -18,8 +18,6 @@ class QRCode implements QRCodeInterface
 
     protected ?string $slug = null;
 
-    protected int $redirectType = 307;
-
     protected bool $embedLogo = false;
 
     protected string $errorCorrectionLevel = self::ERROR_CORRECTION_LEVEL_MEDIUM;
@@ -65,16 +63,6 @@ class QRCode implements QRCodeInterface
     public function setSlug(?string $slug): void
     {
         $this->slug = $slug;
-    }
-
-    public function getRedirectType(): int
-    {
-        return $this->redirectType;
-    }
-
-    public function setRedirectType(int $redirectType): void
-    {
-        $this->redirectType = $redirectType;
     }
 
     public function isEmbedLogo(): bool

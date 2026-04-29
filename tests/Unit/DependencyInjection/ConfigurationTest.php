@@ -20,9 +20,9 @@ final class ConfigurationTest extends TestCase
     /**
      * @test
      */
-    public function it_defaults_redirect_type_to_307(): void
+    public function it_defaults_redirect_type_to_302(): void
     {
-        $this->assertProcessedConfigurationEquals([[]], ['redirect_type' => 307], 'redirect_type');
+        $this->assertProcessedConfigurationEquals([[]], ['redirect_type' => 302], 'redirect_type');
     }
 
     /**

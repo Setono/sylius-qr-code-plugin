@@ -26,7 +26,6 @@ final class TargetUrlQRCodeTypeTest extends TypeTestCase
             'slug' => 'promo-poster',
             'embedLogo' => '1',
             'enabled' => '1',
-            'redirectType' => '301',
             'errorCorrectionLevel' => QRCodeInterface::ERROR_CORRECTION_LEVEL_LOW,
             'utmSource' => 'flyer',
             'utmMedium' => 'print',
@@ -42,7 +41,6 @@ final class TargetUrlQRCodeTypeTest extends TypeTestCase
         self::assertSame('promo-poster', $entity->getSlug());
         self::assertTrue($entity->isEmbedLogo());
         self::assertTrue($entity->isEnabled());
-        self::assertSame(301, $entity->getRedirectType());
         self::assertSame(QRCodeInterface::ERROR_CORRECTION_LEVEL_LOW, $entity->getErrorCorrectionLevel());
         self::assertSame('flyer', $entity->getUtmSource());
         self::assertSame('print', $entity->getUtmMedium());
@@ -118,7 +116,6 @@ final class TargetUrlQRCodeTypeTest extends TypeTestCase
             'slug',
             'embedLogo',
             'enabled',
-            'redirectType',
             'errorCorrectionLevel',
             'utmSource',
             'utmMedium',
@@ -173,7 +170,6 @@ final class TargetUrlQRCodeTypeTest extends TypeTestCase
             'slug' => 'test',
             'embedLogo' => null,
             'enabled' => '1',
-            'redirectType' => '307',
             'errorCorrectionLevel' => QRCodeInterface::ERROR_CORRECTION_LEVEL_MEDIUM,
             'utmSource' => null,
             'utmMedium' => null,

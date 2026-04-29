@@ -20,7 +20,6 @@
                  decorates="setono_sylius_qr_code.factory.product_related_qr_code"
                  decoration-priority="100">
             <argument type="service" id="Setono\SyliusQRCodePlugin\Factory\ProductRelatedQRCodeFactory.inner"/>
-            <argument>%setono_sylius_qr_code.redirect_type%</argument>
             <argument>%setono_sylius_qr_code.utm.source%</argument>
             <argument>%setono_sylius_qr_code.utm.medium%</argument>
         </service>
@@ -32,7 +31,6 @@
                  decorates="setono_sylius_qr_code.factory.target_url_qr_code"
                  decoration-priority="100">
             <argument type="service" id="Setono\SyliusQRCodePlugin\Factory\TargetUrlQRCodeFactory.inner"/>
-            <argument>%setono_sylius_qr_code.redirect_type%</argument>
             <argument>%setono_sylius_qr_code.utm.source%</argument>
             <argument>%setono_sylius_qr_code.utm.medium%</argument>
         </service>

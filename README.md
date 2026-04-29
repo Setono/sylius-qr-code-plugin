@@ -20,8 +20,9 @@ underlying destination does, and every scan is recorded against the QR code that
 - **Per-channel rendering.** The same QR code rendered against two channels encodes two
   different redirect URLs (the channel hostname is baked into the image), so you can print
   channel-specific codes from a single QR code definition.
-- **Stable public redirect** at `GET /qr/{slug}` with configurable status code (301/302/307).
-  UTM parameters configured on the QR code are appended to the resolved target URL.
+- **Stable public redirect** at `GET /qr/{slug}` with a plugin-wide HTTP status code
+  (`setono_sylius_qr_code.redirect_type`; default `302`). UTM parameters configured on
+  the QR code are appended to the resolved target URL.
 - **PNG, SVG, and PDF download** from the admin (`/admin/qr-codes/{id}/download/{format}/{channel}`),
   with optional embedded logo.
 - **Scan tracking.** Every successful redirect persists a `QRCodeScan` row (timestamp,
@@ -114,7 +115,11 @@ That's it — visit `/admin/qr-codes/` to see the grid.
 2. Resolves the target URL via `TargetUrlResolverInterface` (subtype-aware: product → channel
    product slug URL, target URL → the stored URL, decorated with UTM parameters).
 3. Persists a `QRCodeScan` and dispatches `QRCodeScannedEvent`.
-4. Returns a redirect with the QR code's configured status (301/302/307; default 307).
+4. Returns a redirect with the plugin-wide configured status (`setono_sylius_qr_code.redirect_type`,
+   default `302`). The status code is plugin-wide rather than per-QR because permanent
+   redirects (301) get cached aggressively by browsers and crawlers — once issued, the slug
+   cannot be repointed without users hitting the stale target. Override the parameter if your
+   deployment has a different policy.
 
 Slugs are restricted to `[a-z0-9-]+`. The factory derives slugs Sylius-style from the entity
 name, so you usually don't pick them by hand.
@@ -126,9 +131,10 @@ Defaults match the snippet below — drop only the keys you want to change.
 ```yaml
 # config/packages/setono_sylius_qr_code.yaml
 setono_sylius_qr_code:
-    # Default HTTP status used for the public redirect when a QR code doesn't override it.
-    # Allowed: 301, 302, 307.
-    redirect_type: 307
+    # HTTP status code returned by the public /qr/{slug} redirect. Plugin-wide, not per-QR —
+    # 302 (the default) is the safe choice, because 301 gets cached by browsers and crawlers
+    # and prevents repointing the slug. Allowed: 301, 302, 307.
+    redirect_type: 302
 
     utm:
         # Default UTM source/medium written onto new QR codes by the factory. Each QR code

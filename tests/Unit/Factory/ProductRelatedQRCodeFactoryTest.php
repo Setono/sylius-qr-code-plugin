@@ -26,7 +26,6 @@ final class ProductRelatedQRCodeFactoryTest extends TestCase
 
         $factory = new ProductRelatedQRCodeFactory(
             $decoratedFactory->reveal(),
-            defaultRedirectType: 302,
             defaultUtmSource: 'qr',
             defaultUtmMedium: 'qrcode',
         );
@@ -34,7 +33,6 @@ final class ProductRelatedQRCodeFactoryTest extends TestCase
         $result = $factory->createNew();
 
         self::assertSame($entity, $result);
-        self::assertSame(302, $result->getRedirectType());
         self::assertSame('qr', $result->getUtmSource());
         self::assertSame('qrcode', $result->getUtmMedium());
     }
@@ -51,7 +49,6 @@ final class ProductRelatedQRCodeFactoryTest extends TestCase
 
         $factory = new ProductRelatedQRCodeFactory(
             $decoratedFactory->reveal(),
-            defaultRedirectType: 307,
             defaultUtmSource: 'qr',
             defaultUtmMedium: 'qrcode',
         );
@@ -71,7 +68,6 @@ final class ProductRelatedQRCodeFactoryTest extends TestCase
 
         $factory = new ProductRelatedQRCodeFactory(
             $decoratedFactory->reveal(),
-            defaultRedirectType: 307,
             defaultUtmSource: null,
             defaultUtmMedium: null,
         );
@@ -80,7 +76,6 @@ final class ProductRelatedQRCodeFactoryTest extends TestCase
 
         self::assertNull($result->getUtmSource());
         self::assertNull($result->getUtmMedium());
-        self::assertSame(307, $result->getRedirectType());
     }
 
     /**
@@ -93,7 +88,6 @@ final class ProductRelatedQRCodeFactoryTest extends TestCase
 
         $factory = new ProductRelatedQRCodeFactory(
             $decoratedFactory->reveal(),
-            defaultRedirectType: 307,
             defaultUtmSource: null,
             defaultUtmMedium: null,
         );

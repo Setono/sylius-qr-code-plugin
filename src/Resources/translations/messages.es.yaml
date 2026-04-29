@@ -25,12 +25,10 @@ setono_sylius_qr_code:
         new_target_url_qr_code: New URL QR code
         edit_product_related_qr_code: Edit product QR code
         edit_target_url_qr_code: Edit URL QR code
-        redirect_type: Redirect type
         error_correction_level: Error correction level
         utm_source: UTM source
         utm_medium: UTM medium
         utm_campaign: UTM campaign
-        advanced_settings: Advanced settings
         statistics: Statistics
         total_scans: Total scans
         last_7_days: Last 7 days
@@ -46,4 +44,3 @@ setono_sylius_qr_code:
             basics: Basics
             appearance: Appearance
             tracking: Tracking
-            advanced: Advanced

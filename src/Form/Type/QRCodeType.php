@@ -15,8 +15,8 @@ use Symfony\Component\Form\FormEvents;
 
 /**
  * Shared base form type for the two QR code subtypes. Holds fields common to both
- * (name, slug, embedLogo, enabled, and the advanced redirect/UTM/error-correction fields)
- * and installs a submit listener that resolves the UI-only `errorCorrectionLevel = auto`
+ * (name, slug, embedLogo, enabled, and the advanced UTM/error-correction fields) and
+ * installs a submit listener that resolves the UI-only `errorCorrectionLevel = auto`
  * value to `H` (logo embedded) or `M` (no logo) before the entity is flushed.
  */
 abstract class QRCodeType extends AbstractResourceType
@@ -43,13 +43,6 @@ abstract class QRCodeType extends AbstractResourceType
             ->add('enabled', CheckboxType::class, [
                 'label' => 'setono_sylius_qr_code.ui.enabled',
                 'required' => false,
-            ])
-            ->add('redirectType', ChoiceType::class, [
-                'label' => 'setono_sylius_qr_code.ui.redirect_type',
-                'choices' => array_combine(
-                    array_map(static fn (int $code): string => (string) $code, QRCodeInterface::REDIRECT_TYPES),
-                    QRCodeInterface::REDIRECT_TYPES,
-                ),
             ])
             ->add('errorCorrectionLevel', ChoiceType::class, [
                 'label' => 'setono_sylius_qr_code.ui.error_correction_level',

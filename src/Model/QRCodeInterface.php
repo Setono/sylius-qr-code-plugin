@@ -25,8 +25,6 @@ interface QRCodeInterface extends ResourceInterface, ToggleableInterface
         self::ERROR_CORRECTION_LEVEL_HIGH,
     ];
 
-    public const REDIRECT_TYPES = [301, 302, 307];
-
     public const TYPE_PRODUCT = 'product';
 
     public const TYPE_TARGET_URL = 'target_url';
@@ -44,10 +42,6 @@ interface QRCodeInterface extends ResourceInterface, ToggleableInterface
     public function getSlug(): ?string;
 
     public function setSlug(?string $slug): void;
-
-    public function getRedirectType(): int;
-
-    public function setRedirectType(int $redirectType): void;
 
     public function isEmbedLogo(): bool;
 

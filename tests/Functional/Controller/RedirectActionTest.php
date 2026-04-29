@@ -38,7 +38,6 @@ final class RedirectActionTest extends WebTestCase
             slug: 'spring',
             enabled: true,
             targetUrl: 'https://example.com/landing',
-            redirectType: 302,
             utmSource: 'flyer',
             utmMedium: 'print',
             utmCampaign: 'spring-2026',
@@ -48,6 +47,9 @@ final class RedirectActionTest extends WebTestCase
 
         $response = $this->client->getResponse();
 
+        // The redirect status code is plugin-wide config (`setono_sylius_qr_code.redirect_type`,
+        // default 302). Verifying the body of the redirect — target URL and UTM appending — is
+        // what's interesting at this layer; the status-code wiring is asserted separately.
         self::assertSame(302, $response->getStatusCode());
 
         $location = (string) $response->headers->get('Location');
@@ -60,18 +62,19 @@ final class RedirectActionTest extends WebTestCase
     /**
      * @test
      */
-    public function it_uses_the_qr_codes_configured_redirect_type(): void
+    public function it_uses_the_configured_redirect_status_code(): void
     {
         $this->persistQRCode(
-            slug: 'permanent',
+            slug: 'configured',
             enabled: true,
-            targetUrl: 'https://example.com/permanent',
-            redirectType: 301,
+            targetUrl: 'https://example.com/configured',
         );
 
-        $this->client->request('GET', '/qr/permanent');
+        $this->client->request('GET', '/qr/configured');
 
-        self::assertSame(301, $this->client->getResponse()->getStatusCode());
+        // Test app does not override `setono_sylius_qr_code.redirect_type`, so we get the
+        // plugin's documented default (302).
+        self::assertSame(302, $this->client->getResponse()->getStatusCode());
     }
 
     /**
@@ -116,7 +119,7 @@ final class RedirectActionTest extends WebTestCase
             'HTTP_USER_AGENT' => 'PHPUnit/Functional',
         ]);
 
-        self::assertSame(307, $this->client->getResponse()->getStatusCode());
+        self::assertSame(302, $this->client->getResponse()->getStatusCode());
 
         $scanRepository = self::getContainer()->get('setono_sylius_qr_code.repository.qr_code_scan');
         Assert::isInstanceOf($scanRepository, QRCodeScanRepositoryInterface::class);
@@ -134,7 +137,6 @@ final class RedirectActionTest extends WebTestCase
         string $slug,
         bool $enabled,
         string $targetUrl,
-        int $redirectType = 307,
         ?string $utmSource = null,
         ?string $utmMedium = null,
         ?string $utmCampaign = null,
@@ -144,7 +146,6 @@ final class RedirectActionTest extends WebTestCase
         $qrCode->setSlug($slug);
         $qrCode->setEnabled($enabled);
         $qrCode->setEmbedLogo(false);
-        $qrCode->setRedirectType($redirectType);
         $qrCode->setErrorCorrectionLevel(QRCodeInterface::ERROR_CORRECTION_LEVEL_MEDIUM);
         $qrCode->setTargetUrl($targetUrl);
         $qrCode->setUtmSource($utmSource);

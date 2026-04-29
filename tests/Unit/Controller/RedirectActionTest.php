@@ -30,7 +30,6 @@ final class RedirectActionTest extends TestCase
     {
         $qrCode = $this->prophesize(QRCodeInterface::class);
         $qrCode->getId()->willReturn(42);
-        $qrCode->getRedirectType()->willReturn(307);
 
         $qrCodeRepository = $this->prophesize(QRCodeRepositoryInterface::class);
         $qrCodeRepository->findOneEnabledBySlug('winter-sale')->willReturn($qrCode->reveal());
@@ -51,6 +50,7 @@ final class RedirectActionTest extends TestCase
             $resolver->reveal(),
             $dispatcher->reveal(),
             $this->prophesize(LoggerInterface::class)->reveal(),
+            redirectType: 307,
         );
 
         $response = $action(new Request(), 'winter-sale');
@@ -72,6 +72,7 @@ final class RedirectActionTest extends TestCase
             $this->prophesize(TargetUrlResolverInterface::class)->reveal(),
             $this->prophesize(EventDispatcherInterface::class)->reveal(),
             $this->prophesize(LoggerInterface::class)->reveal(),
+            redirectType: 302,
         );
 
         $this->expectException(NotFoundHttpException::class);
@@ -96,6 +97,7 @@ final class RedirectActionTest extends TestCase
             $resolver->reveal(),
             $this->prophesize(EventDispatcherInterface::class)->reveal(),
             $this->prophesize(LoggerInterface::class)->reveal(),
+            redirectType: 302,
         );
 
         $this->expectException(NotFoundHttpException::class);
@@ -112,7 +114,6 @@ final class RedirectActionTest extends TestCase
         // exception does not block the redirect").
         $qrCode = $this->prophesize(QRCodeInterface::class);
         $qrCode->getId()->willReturn(7);
-        $qrCode->getRedirectType()->willReturn(302);
 
         $qrCodeRepository = $this->prophesize(QRCodeRepositoryInterface::class);
         $qrCodeRepository->findOneEnabledBySlug('flaky')->willReturn($qrCode->reveal());
@@ -134,6 +135,7 @@ final class RedirectActionTest extends TestCase
             $resolver->reveal(),
             $dispatcher->reveal(),
             $logger->reveal(),
+            redirectType: 302,
         ))(new Request(), 'flaky');
 
         self::assertSame(302, $response->getStatusCode());

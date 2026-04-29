@@ -67,7 +67,6 @@ final class StatsActionTest extends AdminWebTestCase
         $qrCode->setSlug($slug);
         $qrCode->setEnabled(true);
         $qrCode->setEmbedLogo(false);
-        $qrCode->setRedirectType(307);
         $qrCode->setErrorCorrectionLevel(QRCodeInterface::ERROR_CORRECTION_LEVEL_MEDIUM);
         $qrCode->setTargetUrl('https://example.com/' . $slug);
 

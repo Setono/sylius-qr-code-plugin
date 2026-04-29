@@ -37,7 +37,6 @@ final class ProductRelatedQRCodeTypeTest extends TypeTestCase
             'slug' => 'mug-qr',
             'embedLogo' => '1',
             'enabled' => '1',
-            'redirectType' => '302',
             'errorCorrectionLevel' => QRCodeInterface::ERROR_CORRECTION_LEVEL_LOW,
             'utmSource' => 'pkg',
             'utmMedium' => 'sticker',
@@ -52,7 +51,6 @@ final class ProductRelatedQRCodeTypeTest extends TypeTestCase
         self::assertSame('Mug QR', $entity->getName());
         self::assertSame('mug-qr', $entity->getSlug());
         self::assertTrue($entity->isEmbedLogo());
-        self::assertSame(302, $entity->getRedirectType());
         self::assertSame(QRCodeInterface::ERROR_CORRECTION_LEVEL_LOW, $entity->getErrorCorrectionLevel());
         self::assertSame($product, $entity->getProduct());
     }
@@ -125,7 +123,6 @@ final class ProductRelatedQRCodeTypeTest extends TypeTestCase
             'slug',
             'embedLogo',
             'enabled',
-            'redirectType',
             'errorCorrectionLevel',
             'utmSource',
             'utmMedium',
@@ -194,7 +191,6 @@ final class ProductRelatedQRCodeTypeTest extends TypeTestCase
             'slug' => 'test',
             'embedLogo' => null,
             'enabled' => '1',
-            'redirectType' => '307',
             'errorCorrectionLevel' => QRCodeInterface::ERROR_CORRECTION_LEVEL_MEDIUM,
             'utmSource' => null,
             'utmMedium' => null,
