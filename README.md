@@ -88,7 +88,12 @@ The import registers:
 - `GET /qr/{slug}` — public redirect (shop)
 - `/admin/qr-codes/...` — admin grid, create/update/show/delete, stats, download, bulk-generate
 
-### 4. Enable Gedmo's timestampable listener
+### 4. Verify Gedmo's timestampable listener is enabled
+
+A standard Sylius installation already ships `stof/doctrine-extensions-bundle` with the
+`timestampable` listener enabled — there is nothing to do on a stock Sylius project. If
+you are running a customised setup that disables it, re-enable it for the default ORM
+manager:
 
 ```yaml
 # config/packages/stof_doctrine_extensions.yaml
