@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Setono\SyliusQRCodePlugin\Controller;
 
+use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
 use Setono\SyliusQRCodePlugin\Repository\QRCodeRepositoryInterface;
 use Setono\SyliusQRCodePlugin\Repository\QRCodeScanRepositoryInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Twig\Environment;
+use Webmozart\Assert\Assert;
 
 /**
  * Admin page at /admin/qr-codes/{id}/stats. Renders totals, quick-stat cards for the last 7/30/90
@@ -36,6 +38,7 @@ final class StatsAction
         if (null === $qrCode) {
             throw new NotFoundHttpException(sprintf('No QR code with id %d.', $id));
         }
+        Assert::isInstanceOf($qrCode, QRCodeInterface::class);
 
         $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
         $range = $now->modify(sprintf('-%d days', self::DEFAULT_RANGE_DAYS));

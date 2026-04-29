@@ -6,14 +6,13 @@ namespace Setono\SyliusQRCodePlugin\Tests\Unit\Form\Type;
 
 use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusQRCodePlugin\Form\Type\ProductRelatedQRCodeType;
-use Setono\SyliusQRCodePlugin\Form\Type\QRCodeType;
 use Setono\SyliusQRCodePlugin\Model\ProductRelatedQRCode;
 use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
 use Sylius\Bundle\ProductBundle\Form\Type\ProductAutocompleteChoiceType;
 use Sylius\Bundle\ResourceBundle\Form\Type\ResourceAutocompleteChoiceType;
 use Sylius\Component\Product\Model\ProductInterface;
 use Sylius\Component\Registry\ServiceRegistryInterface;
-use Sylius\Resource\Doctrine\Persistence\RepositoryInterface;
+use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Form\Test\TypeTestCase;
 
 final class ProductRelatedQRCodeTypeTest extends TypeTestCase
@@ -51,23 +50,6 @@ final class ProductRelatedQRCodeTypeTest extends TypeTestCase
         self::assertSame('mug-qr', $entity->getSlug());
         self::assertSame(QRCodeInterface::ERROR_CORRECTION_LEVEL_LOW, $entity->getErrorCorrectionLevel());
         self::assertSame($product, $entity->getProduct());
-    }
-
-    /**
-     * @test
-     */
-    public function it_resolves_auto_error_correction_level_to_medium(): void
-    {
-        $entity = new ProductRelatedQRCode();
-
-        $form = $this->factory->create(ProductRelatedQRCodeType::class, $entity);
-
-        $form->submit($this->minimalSubmitData([
-            'errorCorrectionLevel' => QRCodeType::ERROR_CORRECTION_LEVEL_AUTO,
-        ]));
-
-        self::assertTrue($form->isValid());
-        self::assertSame(QRCodeInterface::ERROR_CORRECTION_LEVEL_MEDIUM, $entity->getErrorCorrectionLevel());
     }
 
     /**

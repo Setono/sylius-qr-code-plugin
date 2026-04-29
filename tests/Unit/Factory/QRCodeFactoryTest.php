@@ -9,7 +9,7 @@ use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusQRCodePlugin\Factory\QRCodeFactory;
 use Setono\SyliusQRCodePlugin\Model\QRCode;
 use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
-use Sylius\Resource\Factory\FactoryInterface;
+use Sylius\Component\Resource\Factory\FactoryInterface;
 
 /**
  * Covers the abstract base {@see QRCodeFactory} via a minimal concrete stub.

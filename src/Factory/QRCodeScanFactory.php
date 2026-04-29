@@ -6,7 +6,7 @@ namespace Setono\SyliusQRCodePlugin\Factory;
 
 use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
 use Setono\SyliusQRCodePlugin\Model\QRCodeScanInterface;
-use Sylius\Resource\Factory\FactoryInterface;
+use Sylius\Component\Resource\Factory\FactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Webmozart\Assert\Assert;
 

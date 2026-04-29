@@ -25,6 +25,14 @@ setono_sylius_qr_code:
         edit_product_related_qr_code: Edit product QR code
         edit_target_url_qr_code: Edit URL QR code
         error_correction_level: Error correction level
+        error_correction_level_low: Low (~7%)
+        error_correction_level_medium: Medium (~15%)
+        error_correction_level_quartile: Quartile (~25%)
+        error_correction_level_high: High (~30%)
+        error_correction_level_info_header: About error correction level
+        error_correction_level_info_item_purpose: Sets how much of the QR code can be damaged or obscured and still scan. Higher levels add redundancy but produce a denser image, which scans worse at small sizes or from a distance.
+        error_correction_level_info_item_default: Medium is a sensible default for clean print or screen surfaces.
+        error_correction_level_info_item_high: Pick Quartile or High only when you expect wear, scratches, or partial coverage.
         utm_source: UTM source
         utm_medium: UTM medium
         utm_campaign: UTM campaign

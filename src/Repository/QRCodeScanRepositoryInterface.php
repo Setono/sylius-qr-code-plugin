@@ -6,7 +6,7 @@ namespace Setono\SyliusQRCodePlugin\Repository;
 
 use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
 use Setono\SyliusQRCodePlugin\Model\QRCodeScanInterface;
-use Sylius\Resource\Doctrine\Persistence\RepositoryInterface;
+use Sylius\Component\Resource\Repository\RepositoryInterface;
 
 /**
  * @extends RepositoryInterface<QRCodeScanInterface>

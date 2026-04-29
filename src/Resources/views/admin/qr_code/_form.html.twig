@@ -26,6 +26,15 @@
     <div class="column">
         <div class="ui segment">
             <h4 class="ui dividing header">{{ 'setono_sylius_qr_code.ui.section.appearance'|trans }}</h4>
+            <div class="ui info message">
+                <i class="close icon"></i>
+                <div class="header">{{ 'setono_sylius_qr_code.ui.error_correction_level_info_header'|trans }}</div>
+                <ul class="list">
+                    <li>{{ 'setono_sylius_qr_code.ui.error_correction_level_info_item_purpose'|trans }}</li>
+                    <li>{{ 'setono_sylius_qr_code.ui.error_correction_level_info_item_default'|trans }}</li>
+                    <li>{{ 'setono_sylius_qr_code.ui.error_correction_level_info_item_high'|trans }}</li>
+                </ul>
+            </div>
             {{ form_row(form.errorCorrectionLevel) }}
         </div>
     </div>

@@ -9,7 +9,7 @@ use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusQRCodePlugin\Factory\QRCodeScanFactory;
 use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
 use Setono\SyliusQRCodePlugin\Model\QRCodeScan;
-use Sylius\Resource\Factory\FactoryInterface;
+use Sylius\Component\Resource\Factory\FactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 final class QRCodeScanFactoryTest extends TestCase

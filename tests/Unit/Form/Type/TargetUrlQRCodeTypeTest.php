@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Setono\SyliusQRCodePlugin\Tests\Unit\Form\Type;
 
-use Setono\SyliusQRCodePlugin\Form\Type\QRCodeType;
 use Setono\SyliusQRCodePlugin\Form\Type\TargetUrlQRCodeType;
 use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
 use Setono\SyliusQRCodePlugin\Model\TargetUrlQRCode;
@@ -44,23 +43,6 @@ final class TargetUrlQRCodeTypeTest extends TypeTestCase
         self::assertSame('print', $entity->getUtmMedium());
         self::assertSame('spring-2026', $entity->getUtmCampaign());
         self::assertSame('https://example.com/landing', $entity->getTargetUrl());
-    }
-
-    /**
-     * @test
-     */
-    public function it_resolves_auto_error_correction_level_to_medium(): void
-    {
-        $entity = new TargetUrlQRCode();
-
-        $form = $this->factory->create(TargetUrlQRCodeType::class, $entity);
-
-        $form->submit($this->minimalSubmitData([
-            'errorCorrectionLevel' => QRCodeType::ERROR_CORRECTION_LEVEL_AUTO,
-        ]));
-
-        self::assertTrue($form->isValid());
-        self::assertSame(QRCodeInterface::ERROR_CORRECTION_LEVEL_MEDIUM, $entity->getErrorCorrectionLevel());
     }
 
     /**

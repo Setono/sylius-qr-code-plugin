@@ -52,11 +52,23 @@ composer require setono/sylius-qr-code-plugin
 
 ### 2. Register the bundle
 
+The plugin **must** be registered *above* `SyliusGridBundle` in `config/bundles.php`. The
+plugin's grid configuration references container parameters (e.g.
+`setono_sylius_qr_code.model.qr_code.class`) that are registered by the plugin's
+`sylius_resource` resources. If `SyliusGridBundle` boots first, it tries to resolve those
+parameters before the plugin has had a chance to register them and you get:
+
+```
+You have requested a non-existent parameter "setono_sylius_qr_code.model.qr_code.class".
+```
+
 ```php
 // config/bundles.php
 return [
     // ...
     Setono\SyliusQRCodePlugin\SetonoSyliusQRCodePlugin::class => ['all' => true],
+    Sylius\Bundle\GridBundle\SyliusGridBundle::class => ['all' => true],
+    // ...
 ];
 ```
 

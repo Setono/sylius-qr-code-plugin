@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusQRCodePlugin\Factory\ProductRelatedQRCodeFactory;
 use Setono\SyliusQRCodePlugin\Model\ProductRelatedQRCode;
-use Sylius\Resource\Factory\FactoryInterface;
+use Sylius\Component\Resource\Factory\FactoryInterface;
 
 final class ProductRelatedQRCodeFactoryTest extends TestCase
 {

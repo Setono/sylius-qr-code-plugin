@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusQRCodePlugin\Factory;
 
 use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
-use Sylius\Resource\Factory\FactoryInterface;
+use Sylius\Component\Resource\Factory\FactoryInterface;
 
 /**
  * @extends FactoryInterface<QRCodeInterface>

@@ -6,6 +6,7 @@ namespace Setono\SyliusQRCodePlugin\Controller;
 
 use Setono\SyliusQRCodePlugin\Channel\DefaultChannelResolverInterface;
 use Setono\SyliusQRCodePlugin\Generator\QRCodeGeneratorInterface;
+use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
 use Setono\SyliusQRCodePlugin\Repository\QRCodeRepositoryInterface;
 use Sylius\Component\Channel\Model\ChannelInterface;
 use Sylius\Component\Channel\Repository\ChannelRepositoryInterface;
@@ -43,6 +44,7 @@ final class DownloadAction
         if (null === $qrCode) {
             throw new NotFoundHttpException(sprintf('No QR code with id %d.', $id));
         }
+        Assert::isInstanceOf($qrCode, QRCodeInterface::class);
 
         $resolvedChannel = $this->resolveChannel($channel);
 
