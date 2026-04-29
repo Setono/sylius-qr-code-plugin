@@ -65,7 +65,6 @@ final class BulkGenerateQRCodesActionTest extends TestCase
             $qrCodeRepository->reveal(),
             $factory->reveal(),
             $urlGenerator->reveal(),
-            null,
             $registry->reveal(),
         );
 
@@ -100,7 +99,6 @@ final class BulkGenerateQRCodesActionTest extends TestCase
             $this->prophesize(QRCodeRepositoryInterface::class)->reveal(),
             $factory->reveal(),
             $urlGenerator->reveal(),
-            null,
             $registry->reveal(),
         );
 
@@ -134,7 +132,6 @@ final class BulkGenerateQRCodesActionTest extends TestCase
             $this->prophesize(QRCodeRepositoryInterface::class)->reveal(),
             $factory->reveal(),
             $urlGenerator->reveal(),
-            null,
             $registry->reveal(),
         );
 
@@ -151,66 +148,11 @@ final class BulkGenerateQRCodesActionTest extends TestCase
             $this->prophesize(QRCodeRepositoryInterface::class)->reveal(),
             $this->prophesize(ProductRelatedQRCodeFactoryInterface::class)->reveal(),
             $this->prophesize(UrlGeneratorInterface::class)->reveal(),
-            null,
             $this->prophesize(ManagerRegistry::class)->reveal(),
         );
 
         $this->expectException(BadRequestHttpException::class);
         $action($this->buildRequestWithIds([]));
-    }
-
-    /**
-     * @test
-     *
-     * @dataProvider logoPathCases
-     */
-    public function it_sets_embed_logo_based_on_whether_a_logo_path_is_configured(?string $logoPath, bool $expectedEmbedLogo): void
-    {
-        $product = $this->product(1, 'Widget', 'widget');
-
-        $productRepository = $this->prophesize(ProductRepositoryInterface::class);
-        $productRepository->find(1)->willReturn($product);
-
-        $qrCodeRepository = $this->prophesize(QRCodeRepositoryInterface::class);
-        $qrCodeRepository->findOneBySlug('widget')->willReturn(null);
-
-        // Capture the created QR so we can assert on its embedLogo flag after the action runs.
-        $createdQrCode = new ProductRelatedQRCode();
-        $factory = $this->prophesize(ProductRelatedQRCodeFactoryInterface::class);
-        $factory->createNew()->willReturn($createdQrCode);
-
-        $em = $this->prophesize(EntityManagerInterface::class);
-        $em->persist(Argument::type(ProductRelatedQRCodeInterface::class))->shouldBeCalledOnce();
-        $em->flush()->shouldBeCalledOnce();
-
-        $registry = $this->prophesize(ManagerRegistry::class);
-        $registry->getManagerForClass(Argument::any())->willReturn($em->reveal());
-
-        $urlGenerator = $this->prophesize(UrlGeneratorInterface::class);
-        $urlGenerator->generate(Argument::cetera())->willReturn('/admin/products/');
-
-        $action = new BulkGenerateQRCodesAction(
-            $productRepository->reveal(),
-            $qrCodeRepository->reveal(),
-            $factory->reveal(),
-            $urlGenerator->reveal(),
-            $logoPath,
-            $registry->reveal(),
-        );
-
-        $action($this->buildRequestWithIds([1]));
-
-        self::assertSame($expectedEmbedLogo, $createdQrCode->isEmbedLogo());
-    }
-
-    /**
-     * @return iterable<string, array{string|null, bool}>
-     */
-    public static function logoPathCases(): iterable
-    {
-        yield 'unconfigured (null)' => [null, false];
-        yield 'empty string' => ['', false];
-        yield 'configured path' => ['/path/to/logo.png', true];
     }
 
     private function product(int $id, string $name, string $slug): ProductInterface

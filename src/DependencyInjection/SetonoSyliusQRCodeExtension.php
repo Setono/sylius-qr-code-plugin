@@ -18,14 +18,12 @@ final class SetonoSyliusQRCodeExtension extends AbstractResourceExtension implem
      */
     public function load(array $configs, ContainerBuilder $container): void
     {
-        /** @var array{redirect_type: int, utm: array{source: string, medium: string}, logo: array{path: string|null, size: int}, resources: array<string, mixed>} $config */
+        /** @var array{redirect_type: int, utm: array{source: string, medium: string}, resources: array<string, mixed>} $config */
         $config = $this->processConfiguration(new Configuration(), $configs);
 
         $container->setParameter('setono_sylius_qr_code.redirect_type', $config['redirect_type']);
         $container->setParameter('setono_sylius_qr_code.utm.source', $config['utm']['source']);
         $container->setParameter('setono_sylius_qr_code.utm.medium', $config['utm']['medium']);
-        $container->setParameter('setono_sylius_qr_code.logo.path', $config['logo']['path']);
-        $container->setParameter('setono_sylius_qr_code.logo.size', $config['logo']['size']);
         // Exposed for the discriminator-map listener — it needs the model class of each resource
         // so it can wire up the STI map at loadClassMetadata time.
         $container->setParameter('setono_sylius_qr_code.resources', $config['resources']);

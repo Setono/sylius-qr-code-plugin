@@ -40,18 +40,6 @@ final class ConfigurationTest extends TestCase
     /**
      * @test
      */
-    public function it_defaults_logo_configuration(): void
-    {
-        $this->assertProcessedConfigurationEquals(
-            [[]],
-            ['logo' => ['path' => null, 'size' => 60]],
-            'logo',
-        );
-    }
-
-    /**
-     * @test
-     */
     public function it_accepts_allowed_redirect_types(): void
     {
         foreach ([301, 302, 307] as $redirectType) {
@@ -68,23 +56,5 @@ final class ConfigurationTest extends TestCase
             [['redirect_type' => 308]],
             'Invalid redirect_type',
         );
-    }
-
-    /**
-     * @test
-     */
-    public function it_rejects_logo_size_outside_0_to_100(): void
-    {
-        $this->assertConfigurationIsInvalid([['logo' => ['size' => 150]]]);
-        $this->assertConfigurationIsInvalid([['logo' => ['size' => -1]]]);
-    }
-
-    /**
-     * @test
-     */
-    public function it_accepts_logo_size_at_the_bounds(): void
-    {
-        $this->assertConfigurationIsValid([['logo' => ['size' => 0]]]);
-        $this->assertConfigurationIsValid([['logo' => ['size' => 100]]]);
     }
 }

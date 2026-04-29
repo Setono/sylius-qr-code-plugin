@@ -132,7 +132,6 @@ final class QRCodeRepositoryTest extends KernelTestCase
         $qrCode->setName($slug);
         $qrCode->setSlug($slug);
         $qrCode->setEnabled($enabled);
-        $qrCode->setEmbedLogo(false);
         $qrCode->setErrorCorrectionLevel(QRCodeInterface::ERROR_CORRECTION_LEVEL_MEDIUM);
         $qrCode->setTargetUrl('https://example.com/' . $slug);
 

@@ -43,10 +43,6 @@ interface QRCodeInterface extends ResourceInterface, ToggleableInterface
 
     public function setSlug(?string $slug): void;
 
-    public function isEmbedLogo(): bool;
-
-    public function setEmbedLogo(bool $embedLogo): void;
-
     public function getErrorCorrectionLevel(): string;
 
     public function setErrorCorrectionLevel(string $errorCorrectionLevel): void;

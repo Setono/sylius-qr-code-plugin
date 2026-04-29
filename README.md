@@ -23,8 +23,7 @@ underlying destination does, and every scan is recorded against the QR code that
 - **Stable public redirect** at `GET /qr/{slug}` with a plugin-wide HTTP status code
   (`setono_sylius_qr_code.redirect_type`; default `302`). UTM parameters configured on
   the QR code are appended to the resolved target URL.
-- **PNG, SVG, and PDF download** from the admin (`/admin/qr-codes/{id}/download/{format}/{channel}`),
-  with optional embedded logo.
+- **PNG, SVG, and PDF download** from the admin (`/admin/qr-codes/{id}/download/{format}/{channel}`).
 - **Scan tracking.** Every successful redirect persists a `QRCodeScan` row (timestamp,
   IP, user agent) and dispatches a `QRCodeScannedEvent` for your own analytics integrations.
   Listener exceptions never block the redirect.
@@ -142,15 +141,6 @@ setono_sylius_qr_code:
         # existing QR codes.
         source: qr
         medium: qrcode
-
-    logo:
-        # Optional path to a logo image embedded in the center of the QR code when the
-        # `embedLogo` flag is set on a QR code. Leave null to disable. When null, the
-        # admin form does not render the `embedLogo` checkbox at all — the option is
-        # tied to a configured logo and disappears when there is nothing to embed.
-        path: null
-        # Logo size as a percentage (0–100) of the QR code's inner area.
-        size: 60
 
     # Each resource block accepts the standard Sylius `classes.{model,controller,repository,form,factory}`
     # overrides if you need to subclass the entity, swap the controller, etc.

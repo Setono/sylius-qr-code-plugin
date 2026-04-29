@@ -114,7 +114,7 @@ final class QRCodeGeneratorTest extends TestCase
         $logger->warning(Argument::containingString('Unknown error correction level'), Argument::type('array'))
             ->shouldBeCalledOnce();
 
-        $generator = new QRCodeGenerator($this->urlGenerator(), 1200, null, 60);
+        $generator = new QRCodeGenerator($this->urlGenerator(), 1200);
         $generator->setLogger($logger->reveal());
 
         // The bytes don't matter here — we just need the generator not to throw and to log.
@@ -124,47 +124,11 @@ final class QRCodeGeneratorTest extends TestCase
     /**
      * @test
      */
-    public function it_logs_a_warning_and_continues_when_embed_logo_requested_but_path_not_configured(): void
-    {
-        $qrCode = $this->qrCode('with-logo');
-        $qrCode->setEmbedLogo(true);
-
-        $logger = $this->prophesize(LoggerInterface::class);
-        $logger->warning(Argument::containingString('not configured'), Argument::cetera())
-            ->shouldBeCalledOnce();
-
-        $generator = new QRCodeGenerator($this->urlGenerator(), 1200, null, 60);
-        $generator->setLogger($logger->reveal());
-
-        $generator->generate($qrCode, $this->channel('example.com'), QRCodeGeneratorInterface::FORMAT_SVG);
-    }
-
-    /**
-     * @test
-     */
-    public function it_logs_a_warning_and_continues_when_embed_logo_requested_but_file_missing(): void
-    {
-        $qrCode = $this->qrCode('with-missing-logo');
-        $qrCode->setEmbedLogo(true);
-
-        $logger = $this->prophesize(LoggerInterface::class);
-        $logger->warning(Argument::containingString('does not exist'), Argument::type('array'))
-            ->shouldBeCalledOnce();
-
-        $generator = new QRCodeGenerator($this->urlGenerator(), 1200, '/tmp/does-not-exist.png', 60);
-        $generator->setLogger($logger->reveal());
-
-        $generator->generate($qrCode, $this->channel('example.com'), QRCodeGeneratorInterface::FORMAT_SVG);
-    }
-
-    /**
-     * @test
-     */
     public function the_default_size_parameter_is_applied_to_raster_output(): void
     {
         $qrCode = $this->qrCode('size-test');
-        $smallGenerator = new QRCodeGenerator($this->urlGenerator(), 200, null, 60);
-        $largeGenerator = new QRCodeGenerator($this->urlGenerator(), 1200, null, 60);
+        $smallGenerator = new QRCodeGenerator($this->urlGenerator(), 200);
+        $largeGenerator = new QRCodeGenerator($this->urlGenerator(), 1200);
 
         $small = $smallGenerator->generate($qrCode, $this->channel('example.com'), QRCodeGeneratorInterface::FORMAT_PNG);
         $large = $largeGenerator->generate($qrCode, $this->channel('example.com'), QRCodeGeneratorInterface::FORMAT_PNG);
@@ -189,7 +153,7 @@ final class QRCodeGeneratorTest extends TestCase
         $urlGenerator->getContext()->setHost('admin.example.com');
         $urlGenerator->getContext()->setScheme('http');
 
-        $generator = new QRCodeGenerator($urlGenerator, 1200, null, 60);
+        $generator = new QRCodeGenerator($urlGenerator, 1200);
         $qrCode = $this->qrCode('summer');
 
         $shop = $generator->generate($qrCode, $this->channel('shop.example.com'), QRCodeGeneratorInterface::FORMAT_SVG);
@@ -203,7 +167,7 @@ final class QRCodeGeneratorTest extends TestCase
 
     private function buildGenerator(): QRCodeGenerator
     {
-        return new QRCodeGenerator($this->urlGenerator(), 1200, null, 60);
+        return new QRCodeGenerator($this->urlGenerator(), 1200);
     }
 
     private function urlGenerator(): UrlGenerator

@@ -26,8 +26,6 @@ final class SetonoSyliusQRCodeExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.redirect_type', 302);
         $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.utm.source', 'qr');
         $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.utm.medium', 'qrcode');
-        $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.logo.path', null);
-        $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.logo.size', 60);
     }
 
     /**
@@ -38,13 +36,10 @@ final class SetonoSyliusQRCodeExtensionTest extends AbstractExtensionTestCase
         $this->load([
             'redirect_type' => 301,
             'utm' => ['source' => 'custom-src', 'medium' => 'custom-med'],
-            'logo' => ['path' => '/tmp/logo.png', 'size' => 80],
         ]);
 
         $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.redirect_type', 301);
         $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.utm.source', 'custom-src');
         $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.utm.medium', 'custom-med');
-        $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.logo.path', '/tmp/logo.png');
-        $this->assertContainerBuilderHasParameter('setono_sylius_qr_code.logo.size', 80);
     }
 }

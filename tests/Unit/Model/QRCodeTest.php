@@ -24,7 +24,6 @@ final class QRCodeTest extends TestCase
         self::assertNull($qrCode->getName());
         self::assertNull($qrCode->getSlug());
         self::assertTrue($qrCode->isEnabled());
-        self::assertFalse($qrCode->isEmbedLogo());
         self::assertSame(QRCodeInterface::ERROR_CORRECTION_LEVEL_MEDIUM, $qrCode->getErrorCorrectionLevel());
         self::assertNull($qrCode->getUtmSource());
         self::assertNull($qrCode->getUtmMedium());
@@ -84,17 +83,6 @@ final class QRCodeTest extends TestCase
 
         $qrCode->setEnabled(false);
         self::assertFalse($qrCode->isEnabled());
-    }
-
-    /**
-     * @test
-     */
-    public function it_exposes_embed_logo_via_accessor(): void
-    {
-        $qrCode = new QRCode();
-        $qrCode->setEmbedLogo(true);
-
-        self::assertTrue($qrCode->isEmbedLogo());
     }
 
     /**

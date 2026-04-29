@@ -145,7 +145,6 @@ final class RedirectActionTest extends WebTestCase
         $qrCode->setName($slug);
         $qrCode->setSlug($slug);
         $qrCode->setEnabled($enabled);
-        $qrCode->setEmbedLogo(false);
         $qrCode->setErrorCorrectionLevel(QRCodeInterface::ERROR_CORRECTION_LEVEL_MEDIUM);
         $qrCode->setTargetUrl($targetUrl);
         $qrCode->setUtmSource($utmSource);

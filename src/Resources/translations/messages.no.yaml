@@ -10,7 +10,6 @@ setono_sylius_qr_code:
         type_target_url: URL
         target_url: Target URL
         product: Product
-        embed_logo: Embed logo
         enabled: Enabled
         scans: Scans
         see_stats: See stats

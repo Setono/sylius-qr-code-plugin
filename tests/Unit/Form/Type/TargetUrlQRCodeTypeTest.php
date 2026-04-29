@@ -12,8 +12,6 @@ use Symfony\Component\Form\Test\TypeTestCase;
 
 final class TargetUrlQRCodeTypeTest extends TypeTestCase
 {
-    private const LOGO_PATH = '/var/logos/qr.png';
-
     /**
      * @test
      */
@@ -26,7 +24,6 @@ final class TargetUrlQRCodeTypeTest extends TypeTestCase
         $form->submit([
             'name' => 'Promo poster',
             'slug' => 'promo-poster',
-            'embedLogo' => '1',
             'enabled' => '1',
             'errorCorrectionLevel' => QRCodeInterface::ERROR_CORRECTION_LEVEL_LOW,
             'utmSource' => 'flyer',
@@ -41,7 +38,6 @@ final class TargetUrlQRCodeTypeTest extends TypeTestCase
 
         self::assertSame('Promo poster', $entity->getName());
         self::assertSame('promo-poster', $entity->getSlug());
-        self::assertTrue($entity->isEmbedLogo());
         self::assertTrue($entity->isEnabled());
         self::assertSame(QRCodeInterface::ERROR_CORRECTION_LEVEL_LOW, $entity->getErrorCorrectionLevel());
         self::assertSame('flyer', $entity->getUtmSource());
@@ -53,39 +49,18 @@ final class TargetUrlQRCodeTypeTest extends TypeTestCase
     /**
      * @test
      */
-    public function it_resolves_auto_error_correction_level_to_medium_when_logo_not_embedded(): void
+    public function it_resolves_auto_error_correction_level_to_medium(): void
     {
         $entity = new TargetUrlQRCode();
 
         $form = $this->factory->create(TargetUrlQRCodeType::class, $entity);
 
         $form->submit($this->minimalSubmitData([
-            'embedLogo' => null,
             'errorCorrectionLevel' => QRCodeType::ERROR_CORRECTION_LEVEL_AUTO,
         ]));
 
         self::assertTrue($form->isValid());
-        self::assertFalse($entity->isEmbedLogo());
         self::assertSame(QRCodeInterface::ERROR_CORRECTION_LEVEL_MEDIUM, $entity->getErrorCorrectionLevel());
-    }
-
-    /**
-     * @test
-     */
-    public function it_resolves_auto_error_correction_level_to_high_when_logo_embedded(): void
-    {
-        $entity = new TargetUrlQRCode();
-
-        $form = $this->factory->create(TargetUrlQRCodeType::class, $entity);
-
-        $form->submit($this->minimalSubmitData([
-            'embedLogo' => '1',
-            'errorCorrectionLevel' => QRCodeType::ERROR_CORRECTION_LEVEL_AUTO,
-        ]));
-
-        self::assertTrue($form->isValid());
-        self::assertTrue($entity->isEmbedLogo());
-        self::assertSame(QRCodeInterface::ERROR_CORRECTION_LEVEL_HIGH, $entity->getErrorCorrectionLevel());
     }
 
     /**
@@ -98,7 +73,6 @@ final class TargetUrlQRCodeTypeTest extends TypeTestCase
         $form = $this->factory->create(TargetUrlQRCodeType::class, $entity);
 
         $form->submit($this->minimalSubmitData([
-            'embedLogo' => '1',
             'errorCorrectionLevel' => QRCodeInterface::ERROR_CORRECTION_LEVEL_QUARTILE,
         ]));
 
@@ -116,7 +90,6 @@ final class TargetUrlQRCodeTypeTest extends TypeTestCase
         $expected = [
             'name',
             'slug',
-            'embedLogo',
             'enabled',
             'errorCorrectionLevel',
             'utmSource',
@@ -128,51 +101,6 @@ final class TargetUrlQRCodeTypeTest extends TypeTestCase
         foreach ($expected as $field) {
             self::assertTrue($form->has($field), sprintf('Form is missing the "%s" field.', $field));
         }
-    }
-
-    /**
-     * @test
-     */
-    public function it_omits_the_embed_logo_field_when_no_logo_path_is_configured(): void
-    {
-        $factory = $this->buildFactoryWithoutLogo();
-
-        $form = $factory->create(TargetUrlQRCodeType::class, new TargetUrlQRCode());
-
-        self::assertFalse(
-            $form->has('embedLogo'),
-            'embedLogo must not be rendered when setono_sylius_qr_code.logo.path is null',
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function it_resolves_auto_error_correction_to_medium_even_when_entity_says_embed_logo_but_no_logo_is_configured(): void
-    {
-        // Even if a previously-saved entity has embedLogo=true, an admin editing it under a
-        // deployment with no configured logo should not pay the cost of error-correction H —
-        // the generator would silently skip the logo at render time anyway.
-        $factory = $this->buildFactoryWithoutLogo();
-
-        $entity = new TargetUrlQRCode();
-        $entity->setEmbedLogo(true);
-
-        $form = $factory->create(TargetUrlQRCodeType::class, $entity);
-
-        $form->submit([
-            'name' => 'Test',
-            'slug' => 'test',
-            'enabled' => '1',
-            'errorCorrectionLevel' => QRCodeType::ERROR_CORRECTION_LEVEL_AUTO,
-            'utmSource' => null,
-            'utmMedium' => null,
-            'utmCampaign' => null,
-            'targetUrl' => 'https://example.com',
-        ]);
-
-        self::assertTrue($form->isValid());
-        self::assertSame(QRCodeInterface::ERROR_CORRECTION_LEVEL_MEDIUM, $entity->getErrorCorrectionLevel());
     }
 
     /**
@@ -200,20 +128,9 @@ final class TargetUrlQRCodeTypeTest extends TypeTestCase
      */
     protected function getTypes(): array
     {
-        // Default factory used by tests in this case has a logo path configured — that's the
-        // typical production setup. The "no logo" variant is built ad-hoc in the relevant tests
-        // via {@see self::buildFactoryWithoutLogo()}.
         return [
-            new TargetUrlQRCodeType(TargetUrlQRCode::class, [], self::LOGO_PATH),
+            new TargetUrlQRCodeType(TargetUrlQRCode::class),
         ];
-    }
-
-    private function buildFactoryWithoutLogo(): \Symfony\Component\Form\FormFactoryInterface
-    {
-        return \Symfony\Component\Form\Forms::createFormFactoryBuilder()
-            ->addType(new TargetUrlQRCodeType(TargetUrlQRCode::class, [], null))
-            ->getFormFactory()
-        ;
     }
 
     /**
@@ -226,7 +143,6 @@ final class TargetUrlQRCodeTypeTest extends TypeTestCase
         return array_merge([
             'name' => 'Test',
             'slug' => 'test',
-            'embedLogo' => null,
             'enabled' => '1',
             'errorCorrectionLevel' => QRCodeInterface::ERROR_CORRECTION_LEVEL_MEDIUM,
             'utmSource' => null,

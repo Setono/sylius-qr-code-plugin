@@ -22,9 +22,9 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  * Sylius admin product grid's bulk action, creates a ProductRelatedQRCode for each product whose
  * slug is not already in use, and flashes a summary of created vs. skipped counts.
  *
- * Options (embedLogo, enabled) are hardcoded to sensible defaults in this slice — a modal that
- * collects them per invocation is a follow-up (see the spec's "Bulk Generation of Product QR
- * Codes" requirement).
+ * Options (enabled) are hardcoded to sensible defaults in this slice — a modal that collects
+ * them per invocation is a follow-up (see the spec's "Bulk Generation of Product QR Codes"
+ * requirement).
  */
 final class BulkGenerateQRCodesAction
 {
@@ -32,18 +32,12 @@ final class BulkGenerateQRCodesAction
 
     /**
      * @param ProductRepositoryInterface<ProductInterface> $productRepository
-     * @param string|null $logoPath the configured `setono_sylius_qr_code.logo.path` — when set
-     *                              (non-null + non-empty) every bulk-generated QR opts into the
-     *                              logo embed; when absent the QR is generated without a logo.
-     *                              Callers that want a different policy should override this
-     *                              action.
      */
     public function __construct(
         private readonly ProductRepositoryInterface $productRepository,
         private readonly QRCodeRepositoryInterface $qrCodeRepository,
         private readonly ProductRelatedQRCodeFactoryInterface $qrCodeFactory,
         private readonly UrlGeneratorInterface $urlGenerator,
-        private readonly ?string $logoPath,
         ManagerRegistry $managerRegistry,
     ) {
         $this->managerRegistry = $managerRegistry;
@@ -86,7 +80,6 @@ final class BulkGenerateQRCodesAction
             $qrCode->setSlug($slug);
             $qrCode->setProduct($product);
             $qrCode->setEnabled(true);
-            $qrCode->setEmbedLogo(null !== $this->logoPath && '' !== $this->logoPath);
 
             $manager = $this->getManager($qrCode);
             $manager->persist($qrCode);

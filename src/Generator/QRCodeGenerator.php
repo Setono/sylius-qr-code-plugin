@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Setono\SyliusQRCodePlugin\Generator;
 
 use Endroid\QrCode\Builder\Builder;
-use Endroid\QrCode\Builder\BuilderInterface;
 use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\Writer\PdfWriter;
 use Endroid\QrCode\Writer\PngWriter;
@@ -26,7 +25,7 @@ final class QRCodeGenerator implements QRCodeGeneratorInterface, LoggerAwareInte
 
     /**
      * Maps the entity's stored error-correction letter to the endroid enum. The entity's
-     * "Auto" value is resolved to H/M at form-submit time, so it never reaches the generator.
+     * "Auto" value is resolved to M at form-submit time, so it never reaches the generator.
      */
     private const ERROR_CORRECTION_LEVELS = [
         QRCodeInterface::ERROR_CORRECTION_LEVEL_LOW => ErrorCorrectionLevel::Low,
@@ -37,13 +36,10 @@ final class QRCodeGenerator implements QRCodeGeneratorInterface, LoggerAwareInte
 
     /**
      * @param positive-int $defaultSize default edge length in pixels (applies to raster formats)
-     * @param int<0, 100> $logoSizePercentage logo width as percentage of QR edge length
      */
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly int $defaultSize,
-        private readonly ?string $logoPath,
-        private readonly int $logoSizePercentage,
     ) {
         // Seeded so the generator is safe to use before setLogger() fires (tests, manual calls).
         $this->logger = new NullLogger();
@@ -64,19 +60,14 @@ final class QRCodeGenerator implements QRCodeGeneratorInterface, LoggerAwareInte
 
         $effectiveSize = $size ?? $this->defaultSize;
 
-        $builder = Builder::create()
+        return Builder::create()
             ->writer($this->createWriter($format))
             ->data($this->buildRedirectUrl($qrCode, $channel))
             ->errorCorrectionLevel($this->resolveErrorCorrectionLevel($qrCode))
             ->size($effectiveSize)
             ->margin(10)
+            ->build()
         ;
-
-        if ($qrCode->isEmbedLogo()) {
-            $this->applyLogo($builder, $effectiveSize);
-        }
-
-        return $builder->build();
     }
 
     private function createWriter(string $format): WriterInterface
@@ -126,37 +117,5 @@ final class QRCodeGenerator implements QRCodeGeneratorInterface, LoggerAwareInte
         }
 
         return self::ERROR_CORRECTION_LEVELS[$level];
-    }
-
-    private function applyLogo(BuilderInterface $builder, int $qrSize): void
-    {
-        if (null === $this->logoPath) {
-            $this->logger->warning(
-                'QR code requests a logo but setono_sylius_qr_code.logo.path is not configured.',
-            );
-
-            return;
-        }
-
-        if (!is_file($this->logoPath)) {
-            $this->logger->warning(
-                'Configured logo path "{path}" does not exist; generating QR without logo.',
-                ['path' => $this->logoPath],
-            );
-
-            return;
-        }
-
-        $logoWidth = (int) round($qrSize * $this->logoSizePercentage / 100);
-
-        if ($logoWidth < 1) {
-            return;
-        }
-
-        $builder
-            ->logoPath($this->logoPath)
-            ->logoResizeToWidth($logoWidth)
-            ->logoPunchoutBackground(true)
-        ;
     }
 }

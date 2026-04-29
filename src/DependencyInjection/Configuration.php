@@ -46,17 +46,6 @@ final class Configuration implements ConfigurationInterface
                         ->scalarNode('medium')->defaultValue('qrcode')->cannotBeEmpty()->end()
                     ->end()
                 ->end()
-                ->arrayNode('logo')
-                    ->addDefaultsIfNotSet()
-                    ->children()
-                        ->scalarNode('path')->defaultNull()->end()
-                        ->integerNode('size')
-                            ->defaultValue(60)
-                            ->min(0)
-                            ->max(100)
-                        ->end()
-                    ->end()
-                ->end()
             ->end()
         ;
 
