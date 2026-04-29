@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Setono\SyliusQRCodePlugin\Resolver;
 
 use League\Uri\Contracts\UriInterface;
-use League\Uri\Uri;
 use Setono\SyliusQRCodePlugin\Exception\UnsupportedQRCodeException;
 use Setono\SyliusQRCodePlugin\Model\ProductRelatedQRCodeInterface;
 use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
@@ -86,7 +85,7 @@ final class ProductRelatedQRCodeResolver implements TargetUrlResolverInterface
         $slug = $translation->getSlug();
         Assert::notNull($slug, 'Product translation must have a slug for the channel default locale.');
 
-        return Uri::new($this->urlGenerator->generate(
+        return UriFactory::fromString($this->urlGenerator->generate(
             'sylius_shop_product_show',
             [
                 'slug' => $slug,

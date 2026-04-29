@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Setono\SyliusQRCodePlugin\Tests\Unit\Resolver;
 
-use League\Uri\Uri;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusQRCodePlugin\Exception\UnsupportedQRCodeException;
 use Setono\SyliusQRCodePlugin\Model\TargetUrlQRCode;
 use Setono\SyliusQRCodePlugin\Resolver\CompositeTargetUrlResolver;
 use Setono\SyliusQRCodePlugin\Resolver\TargetUrlResolverInterface;
+use Setono\SyliusQRCodePlugin\Resolver\UriFactory;
 
 final class CompositeTargetUrlResolverTest extends TestCase
 {
@@ -30,7 +30,7 @@ final class CompositeTargetUrlResolverTest extends TestCase
 
         $supporting = $this->prophesize(TargetUrlResolverInterface::class);
         $supporting->supports($qrCode)->willReturn(true);
-        $supporting->resolve($qrCode)->willReturn(Uri::new('https://example.com/page'));
+        $supporting->resolve($qrCode)->willReturn(UriFactory::fromString('https://example.com/page'));
 
         $composite = new CompositeTargetUrlResolver();
         $composite->add($unsupporting->reveal());

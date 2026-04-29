@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Setono\SyliusQRCodePlugin\Tests\Unit\Controller;
 
-use League\Uri\Uri;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
@@ -15,6 +14,7 @@ use Setono\SyliusQRCodePlugin\Exception\UnsupportedQRCodeException;
 use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
 use Setono\SyliusQRCodePlugin\Repository\QRCodeRepositoryInterface;
 use Setono\SyliusQRCodePlugin\Resolver\TargetUrlResolverInterface;
+use Setono\SyliusQRCodePlugin\Resolver\UriFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -35,7 +35,7 @@ final class RedirectActionTest extends TestCase
         $qrCodeRepository->findOneEnabledBySlug('winter-sale')->willReturn($qrCode->reveal());
 
         $resolver = $this->prophesize(TargetUrlResolverInterface::class);
-        $resolver->resolve($qrCode->reveal())->willReturn(Uri::new('https://example.com/winter'));
+        $resolver->resolve($qrCode->reveal())->willReturn(UriFactory::fromString('https://example.com/winter'));
 
         $dispatcher = $this->prophesize(EventDispatcherInterface::class);
         $dispatcher->dispatch(Argument::that(function (object $event) use ($qrCode): bool {
@@ -119,7 +119,7 @@ final class RedirectActionTest extends TestCase
         $qrCodeRepository->findOneEnabledBySlug('flaky')->willReturn($qrCode->reveal());
 
         $resolver = $this->prophesize(TargetUrlResolverInterface::class);
-        $resolver->resolve($qrCode->reveal())->willReturn(Uri::new('https://example.com/target'));
+        $resolver->resolve($qrCode->reveal())->willReturn(UriFactory::fromString('https://example.com/target'));
 
         $dispatcher = $this->prophesize(EventDispatcherInterface::class);
         $dispatcher->dispatch(Argument::any())->willThrow(new \RuntimeException('listener blew up'));

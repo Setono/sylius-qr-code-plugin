@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Setono\SyliusQRCodePlugin\Tests\Unit\Resolver;
 
-use League\Uri\Uri;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusQRCodePlugin\Model\TargetUrlQRCode;
 use Setono\SyliusQRCodePlugin\Resolver\TargetUrlResolverInterface;
+use Setono\SyliusQRCodePlugin\Resolver\UriFactory;
 use Setono\SyliusQRCodePlugin\Resolver\UtmTargetUrlResolver;
 
 final class UtmTargetUrlResolverTest extends TestCase
@@ -94,7 +94,7 @@ final class UtmTargetUrlResolverTest extends TestCase
     private function resolveWith(TargetUrlQRCode $qrCode, string $decoratedReturn): \League\Uri\Contracts\UriInterface
     {
         $decorated = $this->prophesize(TargetUrlResolverInterface::class);
-        $decorated->resolve($qrCode)->willReturn(Uri::new($decoratedReturn));
+        $decorated->resolve($qrCode)->willReturn(UriFactory::fromString($decoratedReturn));
 
         return (new UtmTargetUrlResolver($decorated->reveal()))->resolve($qrCode);
     }

@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusQRCodePlugin\Resolver;
 
 use League\Uri\Contracts\UriInterface;
-use League\Uri\Modifier;
 use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
-use Webmozart\Assert\Assert;
 
 /**
  * Decorates the composite resolver (or any {@see TargetUrlResolverInterface}) and appends the
@@ -43,9 +41,17 @@ final class UtmTargetUrlResolver implements TargetUrlResolverInterface
             return $uri;
         }
 
-        $uri = Modifier::wrap($uri)->mergeQueryParameters($utm)->unwrap();
-        Assert::isInstanceOf($uri, UriInterface::class);
+        $existing = [];
+        $existingQuery = $uri->getQuery();
+        if (null !== $existingQuery && '' !== $existingQuery) {
+            parse_str($existingQuery, $existing);
+        }
 
-        return $uri;
+        // Entity values override existing keys; nested array-style query params (e.g.
+        // `filters[type]=red`) round-trip via parse_str + http_build_query.
+        $merged = array_merge($existing, $utm);
+        $newQuery = http_build_query($merged, '', '&', \PHP_QUERY_RFC3986);
+
+        return $uri->withQuery('' === $newQuery ? null : $newQuery);
     }
 }

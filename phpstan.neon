@@ -37,3 +37,26 @@ parameters:
         -
             identifier: doctrine.associationType
             path: src/Model/*
+        # UriFactory is deterministically polyglot per league/uri matrix: on v7
+        # `method_exists(Uri::class, 'new') === true` always (alreadyNarrowedType); on v6
+        # always false (impossibleType). PHPStan validates the dynamic dispatch against
+        # both possible method names from the ternary, so on v6 it complains that
+        # `Uri::new` does not exist (staticMethod.notFound) and falls the return back to
+        # mixed (return.type). All four are intentional artefacts of supporting both
+        # versions; reportUnmatchedIgnoredErrors=false keeps the inactive ones quiet on
+        # whichever matrix doesn't trigger them.
+        -
+            identifier: function.alreadyNarrowedType
+            path: src/Resolver/UriFactory.php
+        -
+            identifier: function.impossibleType
+            path: src/Resolver/UriFactory.php
+        -
+            identifier: staticMethod.dynamicName
+            path: src/Resolver/UriFactory.php
+        -
+            identifier: staticMethod.notFound
+            path: src/Resolver/UriFactory.php
+        -
+            identifier: return.type
+            path: src/Resolver/UriFactory.php

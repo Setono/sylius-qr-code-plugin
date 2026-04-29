@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Setono\SyliusQRCodePlugin\Resolver;
 
 use League\Uri\Contracts\UriInterface;
-use League\Uri\Uri;
 use Setono\SyliusQRCodePlugin\Exception\UnsupportedQRCodeException;
 use Setono\SyliusQRCodePlugin\Model\QRCodeInterface;
 use Setono\SyliusQRCodePlugin\Model\TargetUrlQRCodeInterface;
@@ -33,6 +32,6 @@ final class TargetUrlQRCodeResolver implements TargetUrlResolverInterface
         $url = $qrCode->getTargetUrl();
         Assert::string($url, 'A persisted TargetUrlQRCode must have a target URL.');
 
-        return Uri::new($url);
+        return UriFactory::fromString($url);
     }
 }
