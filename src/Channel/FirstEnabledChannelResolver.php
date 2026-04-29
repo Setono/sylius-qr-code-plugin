@@ -19,7 +19,12 @@ final class FirstEnabledChannelResolver implements DefaultChannelResolverInterfa
 
     public function getDefaultChannel(): ChannelInterface
     {
-        foreach ($this->channelRepository->findEnabled() as $channel) {
+        // Going through the Doctrine `findBy()` rather than Sylius's `findEnabled()`
+        // because the latter is only declared on ChannelRepositoryInterface since
+        // Sylius 1.11, and not every downstream wires a concrete repository that
+        // implements it (issue: prod EntityRepository::__call → BadMethodCallException).
+        $channels = $this->channelRepository->findBy(['enabled' => true], null, 1);
+        foreach ($channels as $channel) {
             return $channel;
         }
 

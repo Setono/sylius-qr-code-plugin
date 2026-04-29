@@ -26,7 +26,7 @@ final class FirstEnabledChannelResolverTest extends TestCase
         $second->getCode()->willReturn('DK');
 
         $repository = $this->prophesize(ChannelRepositoryInterface::class);
-        $repository->findEnabled()->willReturn([$first->reveal(), $second->reveal()]);
+        $repository->findBy(['enabled' => true], null, 1)->willReturn([$first->reveal(), $second->reveal()]);
 
         $resolved = (new FirstEnabledChannelResolver($repository->reveal()))->getDefaultChannel();
 
@@ -36,26 +36,10 @@ final class FirstEnabledChannelResolverTest extends TestCase
     /**
      * @test
      */
-    public function it_accepts_an_iterable_channel_collection_not_only_arrays(): void
-    {
-        $channel = $this->prophesize(ChannelInterface::class);
-        $channel->getCode()->willReturn('default');
-
-        $repository = $this->prophesize(ChannelRepositoryInterface::class);
-        $repository->findEnabled()->willReturn((static function () use ($channel): \Generator {
-            yield $channel->reveal();
-        })());
-
-        self::assertSame('default', (new FirstEnabledChannelResolver($repository->reveal()))->getDefaultChannel()->getCode());
-    }
-
-    /**
-     * @test
-     */
     public function it_throws_a_runtime_exception_when_no_enabled_channels_exist(): void
     {
         $repository = $this->prophesize(ChannelRepositoryInterface::class);
-        $repository->findEnabled()->willReturn([]);
+        $repository->findBy(['enabled' => true], null, 1)->willReturn([]);
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessageMatches('/no enabled channels/');
