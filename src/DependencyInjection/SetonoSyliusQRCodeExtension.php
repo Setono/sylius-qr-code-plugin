@@ -64,7 +64,7 @@ final class SetonoSyliusQRCodeExtension extends AbstractResourceExtension implem
         $container->prependExtensionConfig('sylius_grid', [
             'templates' => [
                 'bulk_action' => [
-                    'qr_code_generate' => '@SetonoSyliusQRCodePlugin/admin/qr_code/Grid/BulkAction/generate.html.twig',
+                    'qr_code_generate' => '@SetonoSyliusQRCodePlugin/admin/qr_code/grid/bulk_action/generate.html.twig',
                 ],
             ],
             'grids' => [
